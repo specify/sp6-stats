@@ -4,7 +4,7 @@
 	  ==================================================
 	*/
     include ("/etc/myauth.php");
-	
+
 	function getDate1() {
 		if(array_key_exists('date1', $_GET)) {
 			$date1 = $_GET['date1'];
@@ -18,7 +18,7 @@
 			return "0000-00-00 00:00:00";
 		}
 	}
-	
+
 	function getDate2() {
 		if(array_key_exists('date2', $_GET)) {
 			$date2 = $_GET['date2'];
@@ -32,7 +32,7 @@
 			return date("Y-m-d H:i:s", time()) . "";
 		}
 	}
-	
+
 	function getVersion1() {
 		if(array_key_exists('version1', $_GET)) {
 			$version1 = $_GET['version1'];
@@ -46,7 +46,7 @@
 			return "0.0.00";
 		}
 	}
-	
+
 	function getVersion2() {
 		if(array_key_exists('version2', $_GET)) {
 			$version2 = $_GET['version2'];
@@ -60,7 +60,7 @@
 			return "9.9.99";
 		}
 	}
-	
+
 	$connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
 	if (!$connection) {
 		die ("Couldn't connect" . mysql_error());
@@ -155,7 +155,7 @@
 					and ti.trackid = ti2.trackid
 					and ti2.trackid = ti3.trackid
 					and ti3.trackid = ti5.trackid
-					and ti5.trackid = ti6.maxtid 
+					and ti5.trackid = ti6.maxtid
 					and ti.name = 'Discipline_name'
 					and ti2.name = 'Institution_name'
 					and ti3.name = 'Collection_name'
@@ -372,11 +372,11 @@
 			$date = $results4[0];
 			$IP = $results4[1];
 			$date = "Date Last Accessed: ".$date."<br>";
-			
+
 			$query5 = "SELECT Name, CountAmt, Value FROM trackitem t where trackid = $trackID;";
 			echo "<input id=\"query\" type=\"hidden\" value=\"" . $query4 . "\n" . $query5 . "\">";
 			$info5 = mysql_query($query5) or die(mysql_error());
-			while($results5 = mysql_fetch_array($info5)) 
+			while($results5 = mysql_fetch_array($info5))
 			{
 				$name = $results5['Name'];
 				$countAmt = $results5['CountAmt'];

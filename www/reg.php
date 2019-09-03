@@ -73,15 +73,15 @@
         $result   = mysql_query($query);
         if ($result) {
             $row = mysql_fetch_row(($result));
-            
+
             if ($row) {
                 $doInsert = 0;
                 $registerId  = $row[0];
 
                 foreach (array_keys($_POST) as $p) {
                     $doItemInsert = 1;
-                    
-                    $query = "SELECT RegisterItemID FROM registeritem WHERE RegisterID = " . $registerId . " AND Name ='" . $p ."'"; 
+
+                    $query = "SELECT RegisterItemID FROM registeritem WHERE RegisterID = " . $registerId . " AND Name ='" . $p ."'";
                     /* echo "SEL: " . $query . "\n"; */
                     $result = mysql_query($query);
                     if ($result) {
@@ -116,21 +116,21 @@
 
                    }
                    /* echo "UP: " . $updateStr . "\n\n"; */
-                   $result = mysql_query($updateStr) or die(mysql_error());  
+                   $result = mysql_query($updateStr) or die(mysql_error());
                 }
             }
         }
 
         if ($doInsert) {
-        
+
             $updateStr = "INSERT INTO register (RegNumber, RegType, IP, TimestampCreated) VALUES('$reg_number', '$reg_type', '" . $_SERVER['REMOTE_ADDR'] . "', ";
             $dateStr   = $_POST['date'];
-            
+
             $updateStr .= "'20" . date("y-m-d") ." " . date("H:i:s") . "')";
             /* echo "INSERT-> " . $updateStr . "\n"; */
 
             $result = mysql_query($updateStr) or die(mysql_error());
-            
+
             if ($result)
             {
                 $query = "SELECT RegisterID FROM register ORDER BY RegisterID DESC LIMIT 0,1";
@@ -153,7 +153,7 @@
                             }
                             /* echo "INSERT-> " . $updateStr . "\n"; */
 
-                            $result = mysql_query($updateStr) or die(mysql_error());  
+                            $result = mysql_query($updateStr) or die(mysql_error());
                         }
                     } else {
                         echo "couldn't find the row with the highest key\n";

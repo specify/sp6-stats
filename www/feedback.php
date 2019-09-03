@@ -45,7 +45,7 @@
                     echo "<tr>";
                     foreach ( array_keys($row) AS $header )
                     {
-                        //you have integer keys as well as string keys because of the way PHP 
+                        //you have integer keys as well as string keys because of the way PHP
                         //handles arrays.
                         if ( !is_int($header) )
                         {
@@ -69,7 +69,7 @@
                         }
                     }
                 }
-                echo "</tr>"; 
+                echo "</tr>";
             }
             echo "</table></body></html>";
             mysql_close($connection);
@@ -107,9 +107,9 @@
         if (!$db_select) {
           die ("Couldn't 'select_db' " . mysql_error());
         }
-        
+
         $Timestamp   = date("y-m-d") ." " . date("H:i:s");
-        $Subject     = $_POST['title'];   
+        $Subject     = $_POST['title'];
         $Issue       = $_POST['bug'];
         $Component   = $_POST['task_name'];
         $Comments    = $_POST['comments'];
@@ -133,7 +133,7 @@
 
         echo "INSERT-> " . $updateStr . "\n";
         $result = mysql_query($updateStr) or die(mysql_error());
-            
+
         mysql_close($connection);
     }
     echo "ok";

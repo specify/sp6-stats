@@ -12,7 +12,7 @@ if ($mysql_hst == "localhost")
 
 $collectionId = 0;
 
-// Note: See http://www.php.net/manual/en/features.file-upload.common-pitfalls.php 
+// Note: See http://www.php.net/manual/en/features.file-upload.common-pitfalls.php
 // for discussion of PHP server configuration directives that you will probably need
 // to set for file uploads.
 
@@ -20,8 +20,8 @@ $collectionId = 0;
 
 
 // TODO: Put IP Address ranges here.
-    
-// Set debug to true for more debugging information in output.  
+
+// Set debug to true for more debugging information in output.
 // Debug = true can cause output to be proceeded by an error message, and generate unexpected header.
 $debug = false;
 
@@ -30,16 +30,16 @@ $debug = false;
 // initialize variables so that they can't be provided in any other route.
 $header    = "OK";
 $action    = "ping";
-$dir       = "";   
+$dir       = "";
 $doJustZip = TRUE;
 
 $SQLERRNO  = -1;
 $SQLERRMSG = "";
 
 
-class result 
+class result
 {
-   // Structure to hold results of handler 
+   // Structure to hold results of handler
    public $ipaddr;
    public $action;
    public $spuser;
@@ -65,7 +65,7 @@ $error_codes = array(
     6=>'Missing temporary directory.',
     7=>'Failed to write uploaded file to disk.',
     8=>'A PHP extension stopped the file upload.'
-); 
+);
 /*
 $_POST = array();
 $_POST['action'] = 'adduser';
@@ -104,15 +104,15 @@ if (isset($_GET['dbid']))
 
 if (isset($dbId))
 {
-    $databases = array(0 => "KU_Fish_Tissue", 
-                       1 => "kuinvp4_dbo_6", 
-                       2 => "KANULichenDB", 
-                       3 => "KANUVascularPlantDB", 
-                       4 => "KUBirds", 
-                       5 => "KUHerps", 
-                       6 => "KUVP_dbo_6", 
-                       7 => "entosp_dbo_6", 
-                       8 => "kumam_dbo_6", 
+    $databases = array(0 => "KU_Fish_Tissue",
+                       1 => "kuinvp4_dbo_6",
+                       2 => "KANULichenDB",
+                       3 => "KANUVascularPlantDB",
+                       4 => "KUBirds",
+                       5 => "KUHerps",
+                       6 => "KUVP_dbo_6",
+                       7 => "entosp_dbo_6",
+                       8 => "kumam_dbo_6",
                        9 => "trichomycetes_dbo_6");
     $dbName = $databases[$dbId];
 }
@@ -145,7 +145,7 @@ $doTesting = 0;
 if ($doTesting)
 {
     doTests($db);
-    
+
 } else
 {
     $output = "";
@@ -155,43 +155,43 @@ if ($doTesting)
         case "getco":
             $output = retrieveCOJSON($db, $_GET);
             break;
-            
+
         case "searchco":
             $output = getSearchCOJSON($db, $_GET);
             break;
-            
+
         case "searchtx":
             $output = getSearchTaxaJSON($db, $_GET);
             break;
-            
+
         case "rootnode":
             $output = getRootTreeNodeJSON($db, $_GET);
             break;
-            
+
         case "treenode":
             $output = getTreeNodeJSON($db, $_GET);
             break;
-            
+
         case "databases":
             $output = getDatabasesJSON($db, $_GET);
             break;
-            
+
         case "collections":
             $output = getCollectionsJSON($db, $_GET);
             break;
-            
+
         case "cofornode":
             $output = retrieveCollObjsFromTreeNode($db, $_GET);
             break;
-            
+
         case "cofornoderange":
             $output = retrieveCollObjsFromTreeNodeRange($db, $_GET);
             break;
-            
+
         case "treeranks":
             $output = retrieveRankMap($db, $_GET);
             break;
-            
+
         case "ping":
             $output = pingJSON($_POST);
             break;
@@ -199,8 +199,8 @@ if ($doTesting)
 
     // Begin output with an appropriate header.
     switch ($header)
-    { 
-       case "OK": 
+    {
+       case "OK":
           @header("HTTP/1.1 200 OK");
           break;
        case "401":
@@ -209,13 +209,13 @@ if ($doTesting)
        case "417":
        default;
           @header("HTTP/1.1 417 Expectation Failed");
-    } 
+    }
     echo $output;
 }
 
 // Return results of handler action.
 // TODO: Serialize as XML?
-if ($debug) 
+if ($debug)
 {
     echo "IP [$result->ipaddr]<BR>\n";
     echo "ACTION [$result->action]<BR>\n";
@@ -229,7 +229,7 @@ if ($debug)
     echo "DEBUG [$result->debug";
 }
 
-if($debug) 
+if($debug)
 {
   echo '<pre>';
   var_dump($_FILES);
@@ -239,13 +239,13 @@ if($debug)
   echo '</pre>';
 }
 
-    //**** Supporting functions **** 
-    
+    //**** Supporting functions ****
+
     //----------------------------------------------
     function retrieveFullCOJSON($db, $_GT, $fromSQL, $param)
     {
         global $db2;
-        
+
         $coId        = null;
         $catDate     = null;
         $catDatePrec = null;
@@ -262,7 +262,7 @@ if($debug)
         //echo $sql . " ($param)<BR>";
         if ($stmt->prepare($sql)) {
             $stmt->bind_param('s', $param);
-   
+
             if (!$stmt->execute())
             {
                 echo "<br>Execute Error: " . $db->error . " | " .  $db->errno . "<br>";
@@ -270,7 +270,7 @@ if($debug)
                 $stmt->close();
                 return -1;
             }
-   
+
             $rv = $stmt->bind_result($coId, $catNum, $catDate, $catDatePrec, $countAmt, $fieldNum, $accNum, $ceId);
             if (!$rv)
             {
@@ -285,34 +285,34 @@ if($debug)
             while ($stmt->fetch())
             {
                 if ($cnt > 0) $jsonStr .= ",";
-                
+
                 $fields =  array("coId", "catNum", "catDate", "catDatePrec", "countAmt", "fieldNum", "accNum");
                 $values =  array($coId, $catNum, $catDate, $catDatePrec, $countAmt, $fieldNum, $accNum);
-        
+
                 $jsonStr .= "{";
                 $jsonStr .= buildJSONObj("co", $fields, $values, $stmt);
-                
+
                 $detStr = getDeterminationsJSON($db2, $coId);
                 if ($detStr != "")
-                { 
+                {
                     $jsonStr .= ", ";
                     $jsonStr .= $detStr;
                 }
                 $prepStr = getPreparationsJSON($db2, $coId);
                 if ($prepStr != "")
-                { 
+                {
                     $jsonStr .= ", ";
                     $jsonStr .= $prepStr;
                 }
                 $ceStr = getCollectingEventJSON($db2, $ceId);
                 if ($ceStr != "")
-                { 
+                {
                     $jsonStr .= ", ";
                     $jsonStr .= $ceStr;
                 }
                 $attStr = getAttachmentsJSON($db2, $coId);
                 if ($attStr != "")
-                { 
+                {
                     $jsonStr .= ", ";
                     $jsonStr .= $attStr;
                 }
@@ -327,38 +327,38 @@ if($debug)
 	    echo "<br>Error: " . $stmt->error . " | " .  $stmt->errno . "\n";
         }
         $stmt->close();
-        
+
         return "{ \"status\" : \"" . $status . "\", \"catnum\" : \"$catNum\", \"data\" : $jsonStr }";
     }
-    
+
     //----------------------------------------------
     function retrieveCOJSON($db, $_GT)
     {
         global $collectionId;
 
         $catNum = $_GT['catnum'];
-        
+
         $sql = "FROM collectionobject co LEFT JOIN accession ac ON co.AccessionID = ac.AccessionID WHERE co.CatalogNumber = ?";
-        if (isset($_GET['cln'])) 
+        if (isset($_GET['cln']))
         {
             $sql .= " AND co.CollectionID = " . $_GET['cln'] . " ";
         }
         return retrieveFullCOJSON($db, $_GT, $sql, $catNum);
     }
-    
+
     //----------------------------------------------
     function retrieveCollObjsFromTreeNode($db, $_GT)
     {
         $nodeId   = $_GT['nodeid'];
         $treeType = $_GET['treetype'];
-        
+
         if ($treeType == 3)
         {
             $sql = "FROM taxon t INNER JOIN determination d ON t.TaxonID = d.TaxonID INNER JOIN collectionobject co ON d.CollectionObjectID = co.CollectionObjectID LEFT JOIN accession ac ON co.AccessionID = ac.AccessionID WHERE ";
             $sql .= "co.CollectionID = " . $_GET['cln'] . " AND t.TaxonID = ? ORDER BY co.CatalogNumber";
             return retrieveFullCOJSON($db, $_GT, $sql, $nodeId);
         }
-        
+
         if ($treeType == 0)
         {
             $sql = "FROM collectionobject co LEFT JOIN accession ac ON co.AccessionID = ac.AccessionID INNER JOIN collectingevent ce ON co.CollectingEventID = ce.CollectingEventID INNER JOIN locality l ON ce.LocalityID = l.LocalityID INNER JOIN geography g ON l.GeographyID = g.GeographyID WHERE ";
@@ -388,7 +388,7 @@ if($debug)
                    "WHERE co.CollectionID = ? AND d.IsCurrent = TRUE AND t.NodeNumber >= " . $nodeNum . " AND t.NodeNumber <= " . $highNN .  " LIMIT 0, 300";
             return retrieveFullCOJSON($db, $_GT, $sql, $clnId);
         }
-        
+
 //         if ($treeType == 0)
 //         {
 //             $sql = "FROM collectionobject co LEFT JOIN accession ac ON co.AccessionID = ac.AccessionID INNER JOIN collectingevent ce ON co.CollectingEventID = ce.CollectingEventID INNER JOIN locality l ON ce.LocalityID = l.LocalityID INNER JOIN geography g ON l.GeographyID = g.GeographyID WHERE g.GeographyID = ? ORDER BY co.CatalogNumber";
@@ -508,7 +508,7 @@ if($debug)
         return "{ \"status\" : \"OK\", \"catnum\" : \"$catNum\", \"json\" : $results }";
     }
 
-    
+
     function getDeterminationsJSON($dbx, $colObjId)
     {
 
@@ -659,7 +659,7 @@ if($debug)
             while ($stmt->fetch())
             {
                 if ($i > 0) $data .= ", ";
-                
+
                 $fields = array("loc", "title", "mimetype");
                 $values = array($attachLoc, $attachTitle, $attachMime);
                 $data  .= buildJSONObj("", $fields, $values, $stmt);
@@ -742,7 +742,7 @@ if($debug)
         $stmt->close();
         return "";
     }
-    
+
     function getDatabasesJSON()
     {
         $names = array("Ichthyology", "Invert Paleo", "Lichens", "Vascular Plants", "Ornithology", "Herpetology", "Vertebrate Paleo", "Entomology", "Mammals", "Trichomycetes");
@@ -759,17 +759,17 @@ if($debug)
             $json .= "  \"id\": " . $ids[$x] . ",\n";
             $json .= "  \"type\": \"" . $types[$x] . "\"\n";
             $json .= "}\n";
-        } 
+        }
         $json .= "]}";
         return $json;
     }
 
     function getFieldFromSQL($db, $sql)
-    { 
+    {
         //echo $sql . "<br>";
         $value = null;
         $stmt2 = $db->stmt_init();
-        if ($stmt2->prepare($sql)) 
+        if ($stmt2->prepare($sql))
         {
             //echo "1<br>";
             if (!$stmt2->execute())
@@ -803,28 +803,28 @@ if($debug)
     }
 
     function getCollectionsJSON($db, $GT)
-    {    
+    {
         $dbId = $GT['dbid'];
-        
-        $collectionId = null; 
-        $collectionName = null; 
-        $collectionType = null; 
-        $isEmbeddedCollectingEvent = null; 
-        $geographyTreeDefID = null; 
-        $lithoStratTreeDefID = null; 
-        $taxonTreeDefID = null; 
-        $geologicTimePeriodTreeDefID = null; 
-        $isPaleoContextEmbedded = null; 
-        $paleoContextChildTable = null; 
+
+        $collectionId = null;
+        $collectionName = null;
+        $collectionType = null;
+        $isEmbeddedCollectingEvent = null;
+        $geographyTreeDefID = null;
+        $lithoStratTreeDefID = null;
+        $taxonTreeDefID = null;
+        $geologicTimePeriodTreeDefID = null;
+        $isPaleoContextEmbedded = null;
+        $paleoContextChildTable = null;
         $disciplineType = null;
         $instName = null;
-        
-        
+
+
         // Get Inst Name
         $sql = "SELECT Name FROM institution";
         $instName = getFieldFromSQL($db, $sql);
         $mediaURL = "http://biimages.biodiversity.ku.edu/";
-        
+
         $stmt = $db->stmt_init();
         $sql = "SELECT c.collectionId, c.CollectionName, c.CollectionType, c.IsEmbeddedCollectingEvent, d.GeographyTreeDefID, d.LithoStratTreeDefID, d.TaxonTreeDefID, d.GeologicTimePeriodTreeDefID, d.IsPaleoContextEmbedded, d.PaleoContextChildTable, dv.DisciplineType FROM collection c INNER JOIN discipline d ON c.DisciplineID = d.UserGroupScopeId INNER JOIN division dv ON d.DivisionID = dv.UserGroupScopeId ORDER BY c.collectionId";
         if ($stmt->prepare($sql)) {
@@ -878,24 +878,24 @@ if($debug)
 
         global $tableName;
         global $tableNameCap;
-    
+
         switch ($treeType)
         {
             case 0:
                 $tableName    = "geography";
                 $tableNameCap = "Geography";
                 break;
-            
+
             case 1:
                 $tableName    = "geologictimeperiod";
                 $tableNameCap = "GeologicTimePeriod";
                 break;
-            
+
             case 2:
                 $tableName    = "lithostrat";
                 $tableNameCap = "LithoStrat";
                 break;
-            
+
             case 3:
                 $tableName    = "taxon";
                 $tableNameCap = "Taxon";
@@ -903,7 +903,7 @@ if($debug)
         }
         //echo "[" . $treeType . "][" . $tableName . "]<BR>";
     }
-    
+
     function getTreeToCOQuery($treeType, $recId)
     {
 //    TDTGeography     = 0,
@@ -915,17 +915,17 @@ if($debug)
         {
             case 0:
                 return "SELECT g.GeographyID, COUNT(g.GeographyID) FROM geography g INNER JOIN locality l ON g.GeographyID = l.GeographyID INNER JOIN collectingevent ce ON l.LocalityID = ce.LocalityID INNER JOIN collectionobject co ON ce.CollectingEventID = co.CollectingEventID WHERE g.ParentID = $recId GROUP BY g.GeographyID";
-            
+
             case 1:
                 $tableName    = "geologictimeperiod";
                 $tableNameCap = "GeologicTimePeriod";
                 break;
-            
+
             case 2:
                 $tableName    = "lithostrat";
                 $tableNameCap = "LithoStrat";
                 break;
-            
+
             case 3:
                 $tableName    = "taxon";
                 $tableNameCap = "Taxon";
@@ -933,20 +933,20 @@ if($debug)
         }
         //echo "[" . $treeType . "][" . $tableName . "]<BR>";
     }
-    
+
     function retrieveTaxonTreeNodeJSON($db, $treeType, $recId, $rankId)
     {
-        $pTaxonID = null; 
-        $pCommonName = null; 
-        $pFullName = null; 
-        $pIsAccepted = null; 
-        $pIsHybrid = null; 
-        $pName = null; 
-        $pRankID = null; 
-        $pCitesStatus = null; 
- 
+        $pTaxonID = null;
+        $pCommonName = null;
+        $pFullName = null;
+        $pIsAccepted = null;
+        $pIsHybrid = null;
+        $pName = null;
+        $pRankID = null;
+        $pCitesStatus = null;
+
         $stmt = $db->stmt_init();
-        
+
         $where = "";
         if ($recId == -1)
         {
@@ -956,13 +956,13 @@ if($debug)
         {
             $where = "p.ParentID = " . $recId;
         }
-        
+
         //-----------------------------------------
-        
+
         $recIdToCOCountMap = array();
         $sql = "SELECT t.TaxonID, COUNT(t.TaxonID) FROM taxon t INNER JOIN determination d ON t.TaxonID = d.TaxonID WHERE d.IsCurrent = TRUE AND t.ParentID = $recId GROUP BY t.TaxonID";
         //echo $sql . "<br>";
-        if ($stmt->prepare($sql)) 
+        if ($stmt->prepare($sql))
         {
             if (!$stmt->execute())
             {
@@ -976,7 +976,7 @@ if($debug)
                 $stmt->close();
                 return null;
             }
-            
+
             while ($stmt->fetch())
             {
                 //echo " $recIdToCOCountMap[$pTaxonID] = $count<br>";
@@ -984,12 +984,12 @@ if($debug)
             }
             $stmt->close();
             $stmt = $db->stmt_init();
-        }        
-        
+        }
+
         //-----------------------------------------
         $sql = "SELECT p.TaxonID, COUNT(p.TaxonID) FROM taxon p INNER JOIN taxon k ON p.TaxonID = k.ParentID WHERE " . $where . " GROUP BY p.TaxonID";
         //echo $sql . "<BR>";
-        if ($stmt->prepare($sql)) 
+        if ($stmt->prepare($sql))
         {
             if (!$stmt->execute())
             {
@@ -1003,9 +1003,9 @@ if($debug)
                 $stmt->close();
                 return null;
             }
-            
+
             $recIdMap = array();
-            
+
             while ($stmt->fetch())
             {
                 //echo $pTaxonID . " -> " . $count . "<BR>";
@@ -1013,12 +1013,12 @@ if($debug)
             }
         }
         $stmt->close();
-        
+
         //-------------------------
-        
+
         $stmt = $db->stmt_init();
         $sql = "SELECT p.TaxonID, p.CommonName, p.FullName, p.IsAccepted, p.IsHybrid, p.Name, p.RankID, p.CitesStatus FROM taxon p WHERE " . $where . " ORDER BY FullName";
-        if ($stmt->prepare($sql)) 
+        if ($stmt->prepare($sql))
         {
             if (!$stmt->execute())
             {
@@ -1047,7 +1047,7 @@ if($debug)
                 $data .= "{";
                 $values = array($pTaxonID, $pCommonName, $pFullName, $pIsAccepted, $pIsHybrid, $pName, $pRankID, $pCitesStatus);
                 $data  .= buildJSONObj("-", $fields, $values, $stmt);
-                
+
                 $hasKids = 0;
                 $coCount = 0;
                 if (isset($recIdMap[$pTaxonID]))
@@ -1073,22 +1073,22 @@ if($debug)
         $stmt->close();
         return "{ \"status\" : \"ERROR\", \"id\" : \"$recId\", $data }";
     }
-    
-    
+
+
     function retrieveTreeNodeJSON($db, $treeType, $recId, $rankId)
     {
         global $tableName;
         global $tableNameCap;
-        
+
         setupTreeInfo($treeType);
-        
-        $pTaxonID  = null; 
-        $pFullName = null; 
-        $pName     = null; 
-        $pRankID   = null; 
- 
+
+        $pTaxonID  = null;
+        $pFullName = null;
+        $pName     = null;
+        $pRankID   = null;
+
         $stmt = $db->stmt_init();
-        
+
         $where = "";
         if ($recId == -1)
         {
@@ -1098,13 +1098,13 @@ if($debug)
         {
             $where = "p.ParentID = " . $recId;
         }
-        
+
         //-----------------------------------------
-        
+
         $recIdToCOCountMap = array();
         $sql =  getTreeToCOQuery($treeType, $recId);
         //echo $sql . "<br>";
-        if ($stmt->prepare($sql)) 
+        if ($stmt->prepare($sql))
         {
             if (!$stmt->execute())
             {
@@ -1118,7 +1118,7 @@ if($debug)
                 $stmt->close();
                 return null;
             }
-            
+
             while ($stmt->fetch())
             {
                 //echo " $recIdToCOCountMap[$pTaxonID] = $count<br>";
@@ -1126,14 +1126,14 @@ if($debug)
             }
             $stmt->close();
             $stmt = $db->stmt_init();
-        }        
-        
+        }
+
         //------------------------------------------
-        
-        $sql = "SELECT p." . $tableNameCap . "ID, COUNT(p." . $tableNameCap . "ID) FROM " . $tableName . " p INNER JOIN " . 
+
+        $sql = "SELECT p." . $tableNameCap . "ID, COUNT(p." . $tableNameCap . "ID) FROM " . $tableName . " p INNER JOIN " .
                 $tableName . " k ON p." . $tableNameCap . "ID = k.ParentID WHERE " . $where . " GROUP BY p." . $tableNameCap . "ID";
         //echo $sql . "<BR>";
-        if ($stmt->prepare($sql)) 
+        if ($stmt->prepare($sql))
         {
             if (!$stmt->execute())
             {
@@ -1147,9 +1147,9 @@ if($debug)
                 $stmt->close();
                 return null;
             }
-            
+
             $recIdMap = array();
-            
+
             while ($stmt->fetch())
             {
                 //echo $pTaxonID . " -> " . $count . "<BR>";
@@ -1157,12 +1157,12 @@ if($debug)
             }
         }
         $stmt->close();
-        
+
         //-------------------------
-        
+
         $stmt = $db->stmt_init();
         $sql = "SELECT p." . $tableNameCap . "ID, p.FullName, p.Name, p.RankID FROM " . $tableName . " p WHERE " . $where . " ORDER BY p.Name";
-        if ($stmt->prepare($sql)) 
+        if ($stmt->prepare($sql))
         {
             if (!$stmt->execute())
             {
@@ -1191,7 +1191,7 @@ if($debug)
                 $data .= "{";
                 $values = array($pTaxonID, $pFullName, $pName, $pRankID);
                 $data  .= buildJSONObj("-", $fields, $values, $stmt);
-                
+
                 $hasKids = 0;
                 if (isset($recIdMap[$pTaxonID]))
                 {
@@ -1218,12 +1218,12 @@ if($debug)
         $stmt->close();
         return "{ \"status\" : \"ERROR\", \"id\" : \"$recId\", $data }";
     }
-    
+
     function getTreeNodeJSON($db, $ceId)
     {
         $treeType = $_GET['treetype'];
         $recId    = $_GET['id'];
-        
+
         if ($treeType == 3)
         {
             return retrieveTaxonTreeNodeJSON($db, $treeType, $recId, 0);
@@ -1234,7 +1234,7 @@ if($debug)
     function getRootTreeNodeJSON($db, $GT)
     {
         $treeType = $_GET['treetype'];
-    
+
         $recId = getFieldFromSQL($db, "SELECT TaxonID FROM taxon WHERE ParentID IS NULL");
         if ($treeType == 3)
         {
@@ -1247,15 +1247,15 @@ if($debug)
     {
         global $tableName;
         global $tableNameCap;
-        
+
         $treeType = $_GET['treetype'];
         $tdId     = $_GET['treedefid'];
 
         setupTreeInfo($treeType);
-            
-        $rankId = null; 
-        $title  = null; 
-        
+
+        $rankId = null;
+        $title  = null;
+
         // Get Inst Name
         $stmt = $db->stmt_init();
         $sql = "SELECT RankID, Name FROM " . $tableName . "treedefitem WHERE " . $tableNameCap . "TreeDefID = " . $tdId . " ORDER BY RankID";
@@ -1302,7 +1302,7 @@ if($debug)
         $pingId = $_PST['ping_id'];
         return "{ \"status\" : \"OK\", \"pingid\" : $pingId }";
     }
-    
+
     //----------------------------------------------
     function buildJSONObj($key, $fields, $values, $stmt)
     {
@@ -1314,9 +1314,9 @@ if($debug)
         }
         $out = "";
         if ($key != "-")
-        { 
-            if ($key != "") 
-            { 
+        {
+            if ($key != "")
+            {
                 $out = " \"$key\" : { ";
             } else
             {
@@ -1330,11 +1330,11 @@ if($debug)
             $out .= $fieldTypes[$i] != 253 && is_numeric($values[$i]) && $field != "catNum" ? $values[$i] : ("\"".  $values[$i] . "\"");
             $i++;
         }
-        
+
         if ($key != "-") $out .= "}";
         return $out;
     }
-    
+
     //----------------------------------------------
     function makeJSONDSList($items, $doAddKey, $doJustPair)
     {

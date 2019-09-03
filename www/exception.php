@@ -44,7 +44,7 @@
             $ids  = array();
             $locs  = array();
             $keys = array();
- 
+
 	    echo "<tr><th>File Location</th><th>Count</th><th>Error</th><th>Ids</th></tr>";
             while ( $row = mysql_fetch_array($result) )
             {
@@ -53,7 +53,7 @@
 
 		$inx = strpos($st, "edu.ku.brc");
 		if ($inx > -1)
-		{	
+		{
 			$i = strpos($st, "(", $inx);
 			$eInx = strpos($st, ")", $inx);
 			if ($i > -1 && $eInx > -1)
@@ -74,12 +74,12 @@
 		}
             }
 
-           
+
             $mapping  = array();
             $cntKeys  = array();
             	foreach ( $cnts AS $key=>$value )
             	{
-                        
+
      			$s =  "<tr><td>" . $locs[$key] . "</td><td>" . $value . "</td><td>" . $key . "</td><td>";
                    	$indents = explode(",", $ids[$key]);
 			foreach($indents as $i) {
@@ -110,7 +110,7 @@
                     echo "<tr>";
                     foreach ( array_keys($row) AS $header )
                     {
-                        //you have integer keys as well as string keys because of the way PHP 
+                        //you have integer keys as well as string keys because of the way PHP
                         //handles arrays.
                         if ( !is_int($header) )
                         {
@@ -138,7 +138,7 @@
                         }
                     }
                 }
-                echo "</tr>"; 
+                echo "</tr>";
             }
             echo "</table></body></html>";
             mysql_close($connection);
@@ -176,9 +176,9 @@
         if (!$db_select) {
           die ("Couldn't 'select_db' " . mysql_error());
         }
-        
+
         $Timestamp   = date("y-m-d") ." " . date("H:i:s");
-        $TaskName    = $_POST['task_name'];   
+        $TaskName    = $_POST['task_name'];
         $Title       = $_POST['title'];
         $Bug         = $_POST['bug'];
         $Comments    = $_POST['comments'];
@@ -196,22 +196,22 @@
         $Discipline  = $_POST['discipline'];
         $Division    = $_POST['division'];
         $Institution = $_POST['institution'];
-        
+
 	if (!isset($IP) || strlen($IP) == 0) {
                 $IP = $_SERVER['REMOTE_ADDR'];
         }
 
 
-        $updateStr = "INSERT INTO exception ( " . 
+        $updateStr = "INSERT INTO exception ( " .
                      "TimestampCreated,TaskName,Title,Bug,Comments,Id,StackTrace,ClassName,OSName,OSVersion,JavaVersion," .
-                     "JavaVendor,UserName,IP,AppVersion,Collection,Discipline,Division,Institution) " . 
-                     
+                     "JavaVendor,UserName,IP,AppVersion,Collection,Discipline,Division,Institution) " .
+
          "VALUES('$Timestamp', '$TaskName', '$Title', '$Bug', '$Comments', '$Id', '$StackTrace', '$ClassName', '$OSName', '$OSVersion', '$JavaVersion', " .
          "'$JavaVendor', '$UserName', '$IP', '$AppVersion', '$Collection', '$Discipline', '$Division', '$Institution') ";
-                     
+
         echo "INSERT-> " . $updateStr . "\n";
         $result = mysql_query($updateStr) or die(mysql_error());
-            
+
         mysql_close($connection);
     }
     echo "ok";

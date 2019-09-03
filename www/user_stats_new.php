@@ -36,7 +36,7 @@ function changeAddr(name, page) {
     var version1 = document.getElementById('versions1').selectedIndex;
     var version2 = document.getElementById('versions2').selectedIndex;
     var isa = document.getElementById('isa').selectedIndex;
-	
+
 	if(page == 'inst') {
 		history.pushState({ state: "Colls",
 							colls: name,
@@ -149,14 +149,14 @@ $(function() {
 	$("#datepicker1").datepicker();
 	$("#datepicker2").datepicker();
 	$('#box').hide();
-	
+
 	$("#submit").on("click", function(events) {
 		var date1 = $('#datepicker1').val();
 		var date2 = $('#datepicker2').val();
 		var version1 = document.getElementById('versions1').selectedIndex;
 		var version2 = document.getElementById('versions2').selectedIndex;
 		var isa = document.getElementById('isa').selectedIndex;
-		
+
 		history.pushState({ state: "Insts",
 							d1: date1,
 							d2: date2,
@@ -168,7 +168,7 @@ $(function() {
 		$('#box').val("");
    		query();
 	});
-	
+
 	document.onclick = function (e) {
 	  e = e ||  window.event;
 	  var element = e.target || e.srcElement;
@@ -178,7 +178,7 @@ $(function() {
 		return false; // prevent default action and stop event propagation
 	  }
 	};
-	
+
 	if(history.state) {
 		if(history.state.state == 'Insts') {
 			$('#box').show();
@@ -189,7 +189,7 @@ $(function() {
 			idQuery(history.state.tid);
 		}
 	}
-	
+
 	window.onpopstate = function(event) {
 		var home = $('#Insts');
 		var date1 = $('#datepicker1');
@@ -198,7 +198,7 @@ $(function() {
 		var version2 = $('#versions2');
 		var isa = $('#isa');
 		var InstFilter = $('#box');
-		
+
 		if(event.state == null) {
 			home.html("");
 			date1.val("");
@@ -238,12 +238,12 @@ $(function() {
 			idQuery(event.state.tid);
 		}
 	};
-	
+
 	$('#box').keyup(function(){
 	   var valThis = $(this).val().toLowerCase();
 		$('.Inst>li').each(function(){
 		 var text = $(this).text().toLowerCase();
-			(text.indexOf(valThis) > -1) ? $(this).show() : $(this).hide();            
+			(text.indexOf(valThis) > -1) ? $(this).show() : $(this).hide();
 	   });
 	});
 });
@@ -264,7 +264,7 @@ Specify versions between:
 and
 <select id="versions2">
   <option value="">Select a Specify version:</option>
-    <?php foreach($spversions as $value){ 
+    <?php foreach($spversions as $value){
           echo "<option value=\"$value\">$value</option>";
     } ?>
 </select><br>

@@ -26,7 +26,7 @@
             if ($result)
             {
                 $num=mysql_numrows($result);
-               
+
 		if ($kind == 1) {
                 	echo "<H3>KU Collections</H3>";
  		} else {
@@ -142,15 +142,15 @@
 
         $doInsert     = 1;
         if ($doInsert) {
-        
+
             $updateStr = "INSERT INTO convinfo (TimestampCreated, IP) VALUES(";
             $dateStr   = $_POST['date'];
-            
+
             $updateStr .= "'20" . date("y-m-d") ." " . date("H:i:s") . "', '" . $_SERVER['REMOTE_ADDR'] . "')";
             echo "INSERT-> " . $updateStr . "\n";
             $result = mysql_query($updateStr) or die(mysql_error());
-           
-            $collName = ""; 
+
+            $collName = "";
             $numColObj = 0;
             $convTime  = 0;
             if ($result)
@@ -165,22 +165,22 @@
 
                         foreach (array_keys($_POST) as $p) {
                             $valStr = $_POST[$p];
-                            
+
                             if (substr($p, 0, 4) == "num_") {
                                $numStatsKeys[] = $p;
                             }
-                            
+
                             if ($p == "CollectionName") {
                                 $collName = $_POST[$p];
-                            }                            
+                            }
 
                             if ($p == "num_colobj") {
                                 $numColObj = $_POST[$p];
-                            }                            
+                            }
 
                             if ($p == "num_convtime") {
                                 $convTime = $_POST[$p];
-                            }                            
+                            }
 
 			    if ($valStr != '') {
                                 $updateStr = "INSERT INTO convinfoitem (ConvInfoID, Name, Value, CountAmt) VALUES (" . $convInfoId . ", '" . $p . "', ";
@@ -191,13 +191,13 @@
                                     $updateStr .= "'" . $valStr . "', NULL)";
                                 }
                                 echo "INSERT-> " . $updateStr . "\n";
-                                $result = mysql_query($updateStr) or die(mysql_error());  
+                                $result = mysql_query($updateStr) or die(mysql_error());
 			    }
                         }
 
-                        $updateStr = "UPDATE convinfo SET CollectionName='" . $collName . "', NumColObj=" . $numColObj . ", ConvTime=" . 
+                        $updateStr = "UPDATE convinfo SET CollectionName='" . $collName . "', NumColObj=" . $numColObj . ", ConvTime=" .
                                      $convTime . ", IsUploaded=0, IsConverted=1, IsReportLoaded=0 WHERE ConvInfoID = " . $convInfoId;
-                        $result = mysql_query($updateStr) or die(mysql_error());  
+                        $result = mysql_query($updateStr) or die(mysql_error());
 
                     } else {
                         echo "couldn't find the row with the highest key\n";
@@ -206,7 +206,7 @@
                      echo "`couldn't find the highest key\n";
                 }
             }
-        }    
+        }
 
         mysql_close($connection);
     }
