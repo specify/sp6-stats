@@ -3,20 +3,16 @@
   if ($_GET != '') {
     if (isset($_GET["dmp"])) {
         if ($_GET["dmp"] == 1) {
-            $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-            if (!$connection) {
-                die ("Couldn't connect" . mysql_error());
-            }
+            $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "feedback");
 
-            $db_select = mysql_select_db("feedback");
-            if (!$db_select) {
-              die ("Couldn't 'select_db' " . mysql_error());
+            if ($mysqli->connect_errno) {
+                die("failed to connect to mysql" . $mysqli->connect_error);
             }
 
             $sql = "select count(*) from feedback";
-            $result = mysql_query($sql) or die(mysql_error());
+            $result = $mysqli->query($sql);
 
-            while ( $row = mysql_fetch_array($result) )
+            while ( $row = $result->fetch_assoc() )
             {
                 foreach ( $row AS $key=>$value )
                 {
@@ -24,9 +20,9 @@
                     break;
                 }
             }
-
+            $result->close();
             $sql = "SELECT * FROM feedback ORDER BY FeedbackID DESC";
-            $result = mysql_query($sql) or die(mysql_error());
+            $result = $mysqli->query($sql);
 
             echo "<html>\n";
             echo "<html><body><table border=1>\n";
@@ -38,7 +34,7 @@
             echo "</style>";
             echo "<body><table border=0 cellspacing=0>\n";
             $printed_headers = 0;
-            while ( $row = mysql_fetch_array($result) )
+            while ( $row = $result->fetch_assoc() )
             {
                 if (!$printed_headers) {
                     //print the headers once:
@@ -71,8 +67,9 @@
                 }
                 echo "</tr>";
             }
+            $result->close();
             echo "</table></body></html>";
-            mysql_close($connection);
+            $mysqli->close();
         }
         return;
     }
@@ -98,14 +95,10 @@
 
     if ($cnt > 0)
     {
-        $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-        if (!$connection) {
-            die ("Couldn't connect" . mysql_error());
-        }
+        $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "feedback");
 
-        $db_select = mysql_select_db("feedback");
-        if (!$db_select) {
-          die ("Couldn't 'select_db' " . mysql_error());
+        if ($mysqli->connect_errno) {
+            die("failed to connect to mysql" . $mysqli->connect_error);
         }
 
         $Timestamp   = date("y-m-d") ." " . date("H:i:s");
@@ -132,9 +125,9 @@
          "'$JavaVendor', '$AppVersion', '$Collection', '$Discipline', '$Division', '$Institution') ";
 
         echo "INSERT-> " . $updateStr . "\n";
-        $result = mysql_query($updateStr) or die(mysql_error());
+        $result = $mysqli->query($updateStr);
 
-        mysql_close($connection);
+        $mysqli->close();
     }
     echo "ok";
 

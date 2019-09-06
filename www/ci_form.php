@@ -1,26 +1,22 @@
 <?php
     include ("/etc/myauth.php");
 
-            $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
+$mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "convinfo");
 
-            if (!$connection) {
-                die ("Couldn't connect" . mysql_error());
-            }
+if ($mysqli->connect_errno) {
+    die("failed to connect to mysql" . $mysqli->connect_error);
+}
 
-            $db_select = mysql_select_db("convinfo");
-            if (!$db_select) {
-               die ("Couldn't 'select_db' " . mysql_error());
-            }
+
 
 	    echo "<form name=\"update\"  action=\"ci_update.php\" method=\"get\">\n";
 
             $sql = "SELECT ConvInfoID, TimestampCreated, IP, ConvTime, NumColObj, CollectionName, IsUploaded, IsConverted, IsReportLoaded, IsVerifiedTried, IsVerifiedOk";
             $sql .= " FROM (SELECT * FROM (SELECT * FROM convinfo c ORDER BY TimestampCreated DESC) T2 GROUP BY CollectionName ORDER BY TimestampCreated DESC) T2";
 
-            $result = mysql_query($sql) or die(mysql_error());
+            $result = $mysqli->query($sql);
             if ($result)
             {
-                $num=mysql_numrows($result);
                 echo "<html><head><title>Conversions</title>";
                 echo "<style> td { text-align: center; }</style>";
                 echo "</head><body><center><H2>Converted Collections<H2>";
@@ -30,9 +26,7 @@
                 echo "    <TH>Is Conversion OK</TH><TH>Report Loaded</TH><TH>Tried Verify</TH><TH>Is Verified OK</TH>";
                 echo "</TR>";
 
-                $i = 0;
-                while ($i < $num) {
-                    $row2 = mysql_fetch_row(($result));
+                while ($row2 = $result->fetch_row()) {
                     if ($row2) {
                         $tm = sprintf("%6.2f", ($row2[3] / 60.0));
                         echo "<tr>\n";
@@ -52,8 +46,8 @@
 
                         echo "</tr>\n";
                     }
-                $i++;
                 }
+                $result->close();
                 echo "<table>\n";
                 echo "<br><input type=\"submit\" value=\"Submit\" />\n";
                 echo "</form></center>\n";

@@ -61,15 +61,12 @@
 		}
 	}
 
-	$connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-	if (!$connection) {
-		die ("Couldn't connect" . mysql_error());
-	}
+$mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "stats");
 
-	$db_select = mysql_select_db("stats");
-	if (!$db_select) {
-	  die ("Couldn't 'select_db' " . mysql_error());
-	}
+if ($mysqli->connect_errno) {
+    die("failed to connect to mysql" . $mysqli->connect_error);
+}
+
 	if(!array_key_exists('Institution_name', $_GET) and !array_key_exists('trackID', $_GET)) {
 		$isa = $_GET['isa'];
 		echo "<h2>Select an Institution:</h2>";
@@ -164,12 +161,12 @@
 					order by MAX(TimestampModified) desc;";
 		}
 		echo "<input id=\"query\" type=\"hidden\" value=\"" . $query . "\">";
-		$info = mysql_query($query) or die(mysql_error());
-		$numColls = mysql_num_rows($info);
+        $info = $mysqli->query($query);
+		$numColls = $info->num_rows;
 		echo "<h5># of Collections: $numColls</h5>";
 		echo "<ul class=\"Inst\">";
 		if($numColls != 0){
-			while($results = mysql_fetch_array($info)) {
+			while($results = $info->fetch_row()) {
 				$instName = $results[0];
 				if(!$instName) {
 					$instName = "-null-";
@@ -198,6 +195,7 @@
 				echo "<li><a href=\"#inst\" onclick=\"changeAddr('".str_replace("&", "%26", $key)."', 'inst')\">$key</a>$value</li>";
 			}
 		}
+        $info->close();
 		echo "</ul>";
 	} else if(array_key_exists('Institution_name', $_GET)) {
 		$isa = $_GET['isa'];
@@ -309,8 +307,8 @@
 					order by MAX(TimestampModified) desc;";
 		}
 		echo "<input id=\"query\" type=\"hidden\" value=\"" . $query2 . "\">";
-		$info2 = mysql_query($query2) or die(mysql_error());
-		while($results2 = mysql_fetch_array($info2)) {
+		$info2 = $mysqli->query($query2);
+		while($results2 = $info2->fetch_row()) {
 				$disName = $results2[0];
 				$collName = $results2[1];
 				if(array_key_exists(4, $results2)) {
@@ -324,6 +322,7 @@
 					$collections[$date.$trackID] = "<a href=\"#trackID\" onclick=\"changeAddr($trackID, 'trackID')\">$collName ($disName): $date</a><br>";
 				}
 		}
+        $info2->close();
 		krsort($collections);
 		foreach($collections as $value)
 		{
@@ -343,46 +342,52 @@
 					ON ti.name = ti2.name
 					WHERE ti2.name IS NULL
 					order by name asc;";
-			$info4 = mysql_query($query4) or die(mysql_error());
-			while(($row =  mysql_fetch_array($info4))) {
+			$info4 = $mysqli->query($query4);
+			while(($row = $info4->fetch_row())) {
 				$usageStats[] = $row[0];
 			}
+            $info4->close();
 			$muInfo = array();
 			$query4 = "select distinct name from trackitem where name IN('id', 'os_name', 'os_version', 'java_version', 'java_vendor', 'app_version', 'user_name', 'specifyuser', 'ip', 'tester');";
-			$info4 = mysql_query($query4) or die(mysql_error());
-			while(($row =  mysql_fetch_array($info4))) {
+			$info4 = $mysqli->query($query4);
+			while(($row = $info4->fetch_row())) {
 				$muInfo[] = $row[0];
 			}
+            $info4->close();
 			$dbStats = array();
 			$query4 = "select distinct name from trackitem where name like 'num%' or name = 'Collection_estsize' or name like 'audit_%' or name like 'catby%';";
-			$info4 = mysql_query($query4) or die(mysql_error());
-			while(($row =  mysql_fetch_array($info4))) {
+			$info4 = $mysqli->query($query4);
+			while(($row = $info4->fetch_row())) {
 				$dbStats[] = $row[0];
 			}
+            $info4->close();
 			$dbInfo = array();
 			$query4 = "select distinct name from trackitem where (name like '%name' and name not in ('os_name', 'user_name')) or name like '%number' or name like '%website' or name like '%portal' or name like '%guid' or name like '%email';";
-			$info4 = mysql_query($query4) or die(mysql_error());
-			while(($row =  mysql_fetch_array($info4))) {
+			$info4 = $mysqli->query($query4);
+			while(($row = $info4->fetch_row())) {
 				$dbInfo[] = $row[0];
 			}
+            $info4->close();
 			$trackID = $_GET["trackID"];
 			$query4 = "SELECT t.TimestampModified, t.IP FROM track t where t.TrackID = $trackID;";
-			$info4 = mysql_query($query4) or die(mysql_error());
-			$results4 = mysql_fetch_array($info4);
+			$info4 = $mysqli->query($query4);
+			$results4 = $info4->fetch_row();
+            $info4->close();
 			$date = $results4[0];
 			$IP = $results4[1];
 			$date = "Date Last Accessed: ".$date."<br>";
 
 			$query5 = "SELECT Name, CountAmt, Value FROM trackitem t where trackid = $trackID;";
 			echo "<input id=\"query\" type=\"hidden\" value=\"" . $query4 . "\n" . $query5 . "\">";
-			$info5 = mysql_query($query5) or die(mysql_error());
-			while($results5 = mysql_fetch_array($info5))
+			$info5 = $mysqli->query($query5);
+			while($results5 = $info5->fetch_assoc())
 			{
 				$name = $results5['Name'];
 				$countAmt = $results5['CountAmt'];
 				$value = $results5['Value'];
 				$dataArray[$name] = ($countAmt == null ? $value : $countAmt);
 			}
+            $info5->close();
 			echo "<pre>";
 			echo "</pre><br>";
 			echo "<h1 align=\"center\">".$dataArray['Institution_name']."</h1><h4 align=\"center\">$date</h4>";

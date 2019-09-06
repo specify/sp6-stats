@@ -1,7 +1,7 @@
 <?php
-    include ("/etc/myauth.php");
+include ("/etc/myauth.php");
 
-  if ($_POST != '') {
+if ($_POST != '') {
 
     $cnt = 0;
     foreach (array_keys($_POST) as $p) {
@@ -14,51 +14,49 @@
 
     if ($cnt > -1)
     {
-         if (strcmp($_POST["app_version"], "6.4.13") < 0 ) {
-             echo "It is highly recommended that you upgrade to the latest release.";
-             return;
-         }
-
-         #if (strcmp($_POST["java_version"], "1.6.0_18") != 0 ) {
-             #echo "NOMSG";
-             #return;
-         #}
-        #if (1) return;
-
-        $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-        if (!$connection) {
-            die ("Couldn't connect" . mysql_error());
+        if (strcmp($_POST["app_version"], "6.4.13") < 0 ) {
+            echo "It is highly recommended that you upgrade to the latest release.";
+            return;
         }
 
-        $db_select = mysql_select_db("stats");
-        if (!$db_select) {
-          die ("Couldn't 'select_db' " . mysql_error());
+        #if (strcmp($_POST["java_version"], "1.6.0_18") != 0 ) {
+        #echo "NOMSG";
+        #return;
+        #}
+        #if (1) return;
+
+        $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "stats");
+
+        if ($mysqli->connect_errno) {
+            die("failed to connect to mysql" . $mysqli->connect_error);
         }
 
         $query = "SELECT MessageID,Message FROM messages WHERE Type = 1";
-        $result = mysql_query($query) or die(mysql_error());
+        $result = $mysqli->query($query);
         if ($result)
         {
-            $row = mysql_fetch_row(($result));
+            $row = $result->fetch_row();
             if ($row) {
                 echo $row[1];
-                mysql_close($connection);
+                $mysqli->close();
                 return;
             }
         }
 
         $query = "SELECT Message FROM messages WHERE Type = 0 AND SingleUserIdent = '$Id'";
-        $result = mysql_query($query) or die(mysql_error());
+        $result = $mysqli->query($query);
         if ($result)
         {
-            $row = mysql_fetch_row(($result));
+            $row = $result->fetch_row();
+            $result->close();
             if ($row) {
                 $convInfoId = $row[0];
                 $query = "SELECT Message FROM messages WHERE MessagesID = $Id";
-                $result = mysql_query($query) or die(mysql_error());
+                $result = $mysqli->query($query);
                 if ($result)
                 {
-                    $row = mysql_fetch_row(($result));
+                    $row = $result->fetch_row();
+                    $result->close();
                     if ($row) {
                         $convInfoId = $row[0];
                     }
@@ -71,12 +69,12 @@
         } else {
             echo "`couldn't find the highest key\n";
         }
-        mysql_close($connection);
+        $mysqli->close();
     }
     echo "NOMSG";
 
-  } else {
+} else {
     echo "No arguments!<br>";
-  }
+}
 
 ?>

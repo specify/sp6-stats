@@ -27,14 +27,10 @@
 
     if ($cnt > 0)
     {
-        $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-        if (!$connection) {
-            die ("Couldn't connect" . mysql_error());
-        }
+        $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "stats");
 
-        $db_select = mysql_select_db("stats");
-        if (!$db_select) {
-          die ("Couldn't 'select_db' " . mysql_error());
+        if ($mysqli->connect_errno) {
+            die("failed to connect to mysql" . $mysqli->connect_error);
         }
 
         $now   = time();
@@ -53,9 +49,10 @@
         $query = "SELECT TrackActivityID,LoginDate,LogoutDate,EngagedMinutes,UnknownCount FROM trackactivity WHERE Id = '" . $tr_id . "'";
 
         $doInsert     = 1;
-        $result       = mysql_query($query);
+        $result       = $mysqli->query($query);
         if ($result) {
-            $row = mysql_fetch_row(($result));
+            $row = $result->fetch_row();
+            $result->close();
             if ($row) {
                 $doInsert       = 0;
                 $trackId        = $row[0];
@@ -111,7 +108,7 @@
                              ", UnknownCount=" . $unknownCount .
                              " WHERE TrackActivityID = " . $trackId;
                 //echo "UPDATE-> [" . $updateStr . "]\n";
-                $result = mysql_query($updateStr) or die(mysql_error());
+                $result = $mysqli->query($updateStr);
 
             }
         }
@@ -123,7 +120,7 @@
             $updateStr .= "'$instNum', '$colNum', '$usrname', 0)";
 
             //echo "INSERT-> [" . $updateStr . "]\n";
-            $result = mysql_query($updateStr) or die(mysql_error());
+            $result = $mysqli->query($updateStr);
         }
 
         // insert an activity entry record
@@ -131,10 +128,10 @@
         $updateStr .= $currentDateTime . ", $type, $engagedMinutes, '$tr_id', '" . $remoteIPAddr . "', ";
         $updateStr .= "'$instNum', '$colNum', '$usrname')";
         //echo "UPDATE TA-> [" . $updateStr . "]\n\n\n";
-        $result = mysql_query($updateStr) or die(mysql_error());
+        $result = $mysqli->query($updateStr);
 
 
-        mysql_close($connection);
+        $mysqli->close();
     }
     echo "ok";
 

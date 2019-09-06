@@ -5,24 +5,24 @@
         */
         include ("/etc/myauth.php");
 
-        $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-        if (!$connection) {
-                die ("Couldn't connect" . mysql_error());
-        }
+$mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "stats");
 
-        $db_select = mysql_select_db("stats");
-        if (!$db_select) {
-          die ("Couldn't 'select_db' " . mysql_error());
-        }
-		$query2 = "SELECT distinct ti.Value as 'spversion'
+if ($mysqli->connect_errno) {
+    die("failed to connect to mysql" . $mysqli->connect_error);
+}
+
+
+$query2 = "SELECT distinct ti.Value as 'spversion'
                            FROM trackitem ti
 			   where ti.name = 'app_version'
 			   and ti.value like '6%'
 			   order by ti.value desc;";
-		$info2 = mysql_query($query2) or die(mysql_error());
-		while($results2 = mysql_fetch_array($info2)) {
-				$spversions[] = $results2[0];
-		}
+
+$info2 = $mysqli->query($query2);
+while($results2 = $info2->fetch_row()) {
+    $spversions[] = $results2[0];
+}
+$info2->close();
 ?>
 <html>
 <head>

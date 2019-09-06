@@ -1,7 +1,7 @@
 <?php
    include ("/etc/myauth.php");
 
-	function displayTable($kind)
+function displayTable($mysqli, $kind)
 	{
             $ku = array();
             $ku['entosp_dbo_6'] = 1;
@@ -22,10 +22,9 @@
             $sql = "SELECT ConvInfoID, TimestampCreated, IP, ConvTime, NumColObj, CollectionName, IsUploaded, IsConverted, IsReportLoaded, IsVerifiedTried, IsVerifiedOk";
             $sql .= " FROM (SELECT * FROM (SELECT * FROM convinfo c ORDER BY TimestampCreated DESC) T2 GROUP BY CollectionName ORDER BY TimestampCreated DESC) T2";
 
-            $result = mysql_query($sql) or die(mysql_error());
+            $result = $mysqli->query($sql);
             if ($result)
             {
-                $num=mysql_numrows($result);
 
 		if ($kind == 1) {
                 	echo "<H3>KU Collections</H3>";
@@ -38,8 +37,8 @@
                 echo "</TR>";
 
                 $i = 0;
-                while ($i < $num) {
-                    $row2 = mysql_fetch_row(($result));
+                while ($row2 = $result->fetch_row()) {
+                    
                     if ($row2) {
                         if (($ku[$row2[5]] == 1 && $kind == 1) || ($ku[$row2[5]] != 1 && $kind == 0)) {
                             $mins = $row2[3] / 60.0;
@@ -71,6 +70,7 @@
                     }
                 $i++;
                 }
+                $result->close();
                 echo "</table>";
             }
 	}
@@ -79,14 +79,10 @@
     if (isset($_GET["dmp"])) {
         if ($_GET["dmp"] == 1) {
 
-            $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-            if (!$connection) {
-                die ("Couldn't connect" . mysql_error());
-            }
+            $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "convinfo");
 
-            $db_select = mysql_select_db("convinfo");
-            if (!$db_select) {
-               die ("Couldn't 'select_db' " . mysql_error());
+            if ($mysqli->connect_errno) {
+                die("failed to connect to mysql" . $mysqli->connect_error);
             }
             echo "<html><head><title>Conversions</title>";
             echo "<style>\n";
@@ -98,9 +94,9 @@
             echo "  table { border-right: 1px solid black; border-bottom: 1px solid black; }\n";
             echo "</style>\n";
             echo "</head><body><center><H2>Converted Collections</H2>\n";
-            displayTable(0);
+            displayTable($mysqli, 0);
             echo "<BR><BR>";
-            displayTable(1);
+            displayTable($mysqli, 1);
             echo "</center>";
             echo "</body>";
             echo "</html>";
@@ -130,14 +126,10 @@
 
     if ($cnt > 0)
     {
-        $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-        if (!$connection) {
-            die ("Couldn't connect" . mysql_error());
-        }
+        $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "convinfo");
 
-        $db_select = mysql_select_db("convinfo");
-        if (!$db_select) {
-          die ("Couldn't 'select_db' " . mysql_error());
+        if ($mysqli->connect_errno) {
+            die("failed to connect to mysql" . $mysqli->connect_error);
         }
 
         $doInsert     = 1;
@@ -148,7 +140,7 @@
 
             $updateStr .= "'20" . date("y-m-d") ." " . date("H:i:s") . "', '" . $_SERVER['REMOTE_ADDR'] . "')";
             echo "INSERT-> " . $updateStr . "\n";
-            $result = mysql_query($updateStr) or die(mysql_error());
+            $result = $mysqli->query($updateStr);
 
             $collName = "";
             $numColObj = 0;
@@ -156,10 +148,11 @@
             if ($result)
             {
                 $query = "SELECT ConvInfoID FROM convinfo ORDER BY ConvInfoID DESC LIMIT 0,1";
-                $result2 = mysql_query($query) or die(mysql_error());
+                $result2 = $mysqli->query($query);
                 if ($result)
                 {
-                    $row2 = mysql_fetch_row(($result2));
+                    $row2 = $result2->fetch_row();
+                    $result2->close();
                     if ($row2) {
                         $convInfoId = $row2[0];
 
@@ -191,13 +184,13 @@
                                     $updateStr .= "'" . $valStr . "', NULL)";
                                 }
                                 echo "INSERT-> " . $updateStr . "\n";
-                                $result = mysql_query($updateStr) or die(mysql_error());
+                                $result = $mysqli->query($updateStr);
 			    }
                         }
 
                         $updateStr = "UPDATE convinfo SET CollectionName='" . $collName . "', NumColObj=" . $numColObj . ", ConvTime=" .
                                      $convTime . ", IsUploaded=0, IsConverted=1, IsReportLoaded=0 WHERE ConvInfoID = " . $convInfoId;
-                        $result = mysql_query($updateStr) or die(mysql_error());
+                        $result = $mysqli->query($updateStr);
 
                     } else {
                         echo "couldn't find the row with the highest key\n";
@@ -208,7 +201,7 @@
             }
         }
 
-        mysql_close($connection);
+        $mysqli->close();
     }
     echo "ok";
 

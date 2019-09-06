@@ -3,10 +3,12 @@
     date_default_timezone_set('America/Chicago');
     ini_set("memory_limit", "200M");
 
+$myFile = "/home/anhalt/reg.dat";
+
+
   if ($_GET != '') {
     if (isset($_GET["dmp"])) {
         if ($_GET["dmp"] == 1) {
-            $myFile = "reg.dat";
             $fh = fopen($myFile, 'r') or die("Unable to open file.");
 
             //Read the data for Registration into a string
@@ -49,30 +51,26 @@
         }
     }
 
-    $myFile = "reg.dat";
     $fh = fopen($myFile, 'a') or die("can't open file");
     fwrite($fh, $data);
     fclose($fh);
 
     if ($cnt > 0)
     {
-        $connection = mysql_connect($mysql_hst, $mysql_usr, $mysql_pwd);
-        if (!$connection) {
-            die ("Couldn't connect" . mysql_error());
-        }
+        $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "stats");
 
-        $db_select = mysql_select_db("stats");
-        if (!$db_select) {
-          die ("Couldn't 'select_db' " . mysql_error());
+        if ($mysqli->connect_errno) {
+            die("failed to connect to mysql" . $mysqli->connect_error);
         }
 
         $reg_type = $_POST['reg_type'];
         $query    = "SELECT RegisterID FROM register WHERE RegNumber = '" . $reg_number . "'";
 
         $doInsert = 1;
-        $result   = mysql_query($query);
+        $result   = $mysqli->query($query);
         if ($result) {
-            $row = mysql_fetch_row(($result));
+            $row = $result->fetch_row();
+            $result->close();
 
             if ($row) {
                 $doInsert = 0;
@@ -83,9 +81,10 @@
 
                     $query = "SELECT RegisterItemID FROM registeritem WHERE RegisterID = " . $registerId . " AND Name ='" . $p ."'";
                     /* echo "SEL: " . $query . "\n"; */
-                    $result = mysql_query($query);
+                    $result = $mysqli->query($query);
                     if ($result) {
-                        $row = mysql_fetch_row(($result));
+                        $row = $result->fetch_row();
+                        $result->close();
                         if ($row)
                         {
                             $doItemInsert = 0;
@@ -116,7 +115,7 @@
 
                    }
                    /* echo "UP: " . $updateStr . "\n\n"; */
-                   $result = mysql_query($updateStr) or die(mysql_error());
+                    $result = $mysqli->query($updateStr);
                 }
             }
         }
@@ -129,15 +128,16 @@
             $updateStr .= "'20" . date("y-m-d") ." " . date("H:i:s") . "')";
             /* echo "INSERT-> " . $updateStr . "\n"; */
 
-            $result = mysql_query($updateStr) or die(mysql_error());
+            $result = $mysqli->query($updateStr);
 
             if ($result)
             {
                 $query = "SELECT RegisterID FROM register ORDER BY RegisterID DESC LIMIT 0,1";
-                $result2 = mysql_query($query) or die(mysql_error());
+                $result2 = $mysqli->query($query);
                 if ($result)
                 {
-                    $row2 = mysql_fetch_row(($result2));
+                    $row2 = $result2->fetch_row();
+                    $result2->close();
                     if ($row2) {
                         $registerId = $row2[0];
 
@@ -153,7 +153,7 @@
                             }
                             /* echo "INSERT-> " . $updateStr . "\n"; */
 
-                            $result = mysql_query($updateStr) or die(mysql_error());
+                            $result = $mysqli->query($updateStr);
                         }
                     } else {
                         echo "couldn't find the row with the highest key\n";
@@ -164,7 +164,7 @@
             }
         }
 
-        mysql_close($connection);
+        $mysqli->close();
     }
 
     echo "1 " . $uTime . "\n";
