@@ -42,7 +42,7 @@ function formatBytes($bytes, $precision = 2)
 	return round($bytes, $precision) . ' ' . $units[$pow];
 }
 
-  if ($_GET != '') {
+  if (false && $_GET != '') {
     if (isset($_GET["dmp"])) {
         if ($_GET["dmp"] == 1) {
             $fh = fopen($myFile, 'r') or die("Unable to open file.");

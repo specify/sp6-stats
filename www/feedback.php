@@ -1,6 +1,6 @@
 <?php
     include ("/etc/myauth.php");
-  if ($_GET != '') {
+  if (false && $_GET != '') {
     if (isset($_GET["dmp"])) {
         if ($_GET["dmp"] == 1) {
             $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "feedback");

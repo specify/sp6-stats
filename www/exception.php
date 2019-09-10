@@ -2,7 +2,7 @@
 include ("/etc/myauth.php");
 date_default_timezone_set('America/Chicago');
 
-if ($_GET != '') {
+if (false && $_GET != '') {
     if (isset($_GET["dmp"])) {
         if ($_GET["dmp"] == 1) {
             $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "exception");

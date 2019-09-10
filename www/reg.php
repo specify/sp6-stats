@@ -6,7 +6,7 @@
 $myFile = "/home/anhalt/reg.dat";
 
 
-  if ($_GET != '') {
+  if (false && $_GET != '') {
     if (isset($_GET["dmp"])) {
         if ($_GET["dmp"] == 1) {
             $fh = fopen($myFile, 'r') or die("Unable to open file.");
