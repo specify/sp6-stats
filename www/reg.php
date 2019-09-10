@@ -119,7 +119,7 @@ $myFile = "/home/anhalt/reg.dat";
                             if(!$updateStr->execute()) throw new Exception($mysqli->error);
                         } else {
                             $updateStr = $mysqli->prepare(
-                                "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (?, ?, ?, NULL)";
+                                "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (?, ?, ?, NULL)"
                             );
                             $updateStr->bind_param("iss", $registerId, $p, $valStr);
                             if(!$updateStr->execute()) throw new Exception($mysqli->error);
@@ -133,7 +133,7 @@ $myFile = "/home/anhalt/reg.dat";
         if ($doInsert) {
 
             $updateStr = $mysqli->prepare(
-                "INSERT INTO register (RegNumber, RegType, IP, TimestampCreated) VALUES(?, ?, ?, ?)";
+                "INSERT INTO register (RegNumber, RegType, IP, TimestampCreated) VALUES(?, ?, ?, ?)"
             );
             $updateStr->bind_param("ssss", $reg_number, $_SERVER['REMOTE_ADDR'], date("Y-m-d H:i:s"));
             if(!$updateStr->execute()) throw new Exception($mysqli->error);
