@@ -64,10 +64,12 @@ $myFile = "/home/anhalt/reg.dat";
         }
 
         $reg_type = $_POST['reg_type'];
-        $query    = "SELECT RegisterID FROM register WHERE RegNumber = '" . $reg_number . "'";
+        $query = $mysqli->prepare("SELECT RegisterID FROM register WHERE RegNumber = ?");
+        $query->bind_param("s", $reg_number);
+        if(!$query->execute()) throw new Exception($mysqli->error);
 
         $doInsert = 1;
-        $result   = $mysqli->query($query);
+        $result   = $query->get_result();
         if ($result) {
             $row = $result->fetch_row();
             $result->close();
@@ -79,9 +81,10 @@ $myFile = "/home/anhalt/reg.dat";
                 foreach (array_keys($_POST) as $p) {
                     $doItemInsert = 1;
 
-                    $query = "SELECT RegisterItemID FROM registeritem WHERE RegisterID = " . $registerId . " AND Name ='" . $p ."'";
-                    /* echo "SEL: " . $query . "\n"; */
-                    $result = $mysqli->query($query);
+                    $query = $mysqli->prepare("SELECT RegisterItemID FROM registeritem WHERE RegisterID = ? AND Name = ?");
+                    $query->bind_param("is", $registerId, $p);
+                    if(!$query->execute()) throw new Exception($mysqli->error);
+                    $result = $query->get_result();
                     if ($result) {
                         $row = $result->fetch_row();
                         $result->close();
@@ -90,14 +93,16 @@ $myFile = "/home/anhalt/reg.dat";
                             $doItemInsert = 0;
                             $regItemId    = $row[0];
                             $valStr       = $_POST[$p];
-                            $updateStr    = "UPDATE registeritem SET ";
                             if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                             {
-                                $updateStr .= "CountAmt=" . $valStr . ", Value=NULL";
+                                $updateStr = $mysqli->prepare("UPDATE registeritem SET CountAmt=?, Value=NULL WHERE RegisterItemID = ?");
+                                $updateStr->bind_param("ii", $valStr, $regItemId);
+                                if(!$updateStr->execute()) throw new Exception($mysqli->error);
                             } else {
-                                $updateStr .= "Value='" . $valStr . "', CountAmt=NULL";
+                                $updateStr = $mysqli->prepare("UPDATE registeritem SET Value=?, CountAmt=NULL WHERE RegisterItemID = ?");
+                                $updateStr->bind_param("si", $valStr, $regItemId);
+                                if(!$updateStr->execute()) throw new Exception($mysqli->error);
                             }
-                            $updateStr .= " WHERE RegisterItemID = " . $regItemId;
 
                         }
                     }
@@ -105,62 +110,66 @@ $myFile = "/home/anhalt/reg.dat";
                     if ($doItemInsert) {
                         $valStr = $_POST[$p];
 
-                        $updateStr = "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (" . $registerId . ", '" . $p . "', ";
                         if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                         {
-                            $updateStr .= "NULL, "  . $valStr . ")";
+                            $updateStr = $mysqli->prepare(
+                                "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (?, ?, NULL, ?)"
+                            );
+                            $updateStr->bind_param("isi", $registerId, $p, $valStr);
+                            if(!$updateStr->execute()) throw new Exception($mysqli->error);
                         } else {
-                            $updateStr .= "'" . $valStr . "', NULL)";
+                            $updateStr = $mysqli->prepare(
+                                "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (?, ?, ?, NULL)";
+                            );
+                            $updateStr->bind_param("iss", $registerId, $p, $valStr);
+                            if(!$updateStr->execute()) throw new Exception($mysqli->error);
                         }
 
                    }
-                   /* echo "UP: " . $updateStr . "\n\n"; */
-                    $result = $mysqli->query($updateStr);
                 }
             }
         }
 
         if ($doInsert) {
 
-            $updateStr = "INSERT INTO register (RegNumber, RegType, IP, TimestampCreated) VALUES('$reg_number', '$reg_type', '" . $_SERVER['REMOTE_ADDR'] . "', ";
-            $dateStr   = $_POST['date'];
+            $updateStr = $mysqli->prepare(
+                "INSERT INTO register (RegNumber, RegType, IP, TimestampCreated) VALUES(?, ?, ?, ?)";
+            );
+            $updateStr->bind_param("ssss", $reg_number, $_SERVER['REMOTE_ADDR'], date("Y-m-d H:i:s"));
+            if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
-            $updateStr .= "'20" . date("y-m-d") ." " . date("H:i:s") . "')";
-            /* echo "INSERT-> " . $updateStr . "\n"; */
-
-            $result = $mysqli->query($updateStr);
-
-            if ($result)
+            $query = "SELECT RegisterID FROM register ORDER BY RegisterID DESC LIMIT 0,1";
+            $result2 = $mysqli->query($query);
+            if ($result2)
             {
-                $query = "SELECT RegisterID FROM register ORDER BY RegisterID DESC LIMIT 0,1";
-                $result2 = $mysqli->query($query);
-                if ($result)
-                {
-                    $row2 = $result2->fetch_row();
-                    $result2->close();
-                    if ($row2) {
-                        $registerId = $row2[0];
+                $row2 = $result2->fetch_row();
+                $result2->close();
+                if ($row2) {
+                    $registerId = $row2[0];
 
-                        foreach (array_keys($_POST) as $p) {
-                            $valStr = $_POST[$p];
+                    foreach (array_keys($_POST) as $p) {
+                        $valStr = $_POST[$p];
 
-                            $updateStr = "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (" . $registerId . ", '" . $p . "', ";
-                            if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
-                            {
-                                $updateStr .= "NULL, "  . $valStr . ")";
-                            } else {
-                                $updateStr .= "'" . $valStr . "', NULL)";
-                            }
-                            /* echo "INSERT-> " . $updateStr . "\n"; */
-
-                            $result = $mysqli->query($updateStr);
+                        if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
+                        {
+                            $updateStr = $mysqli->prepare(
+                                "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (?, ?, NULL, ?)"
+                            );
+                            $updateStr->bind_param("isi", $registerId, $p, $valStr);
+                            if(!$updateStr->execute()) throw new Exception($mysqli->error);
+                        } else {
+                            $updateStr = $mysqli->prepare(
+                                "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (?, ?, ?, NULL)"
+                            );
+                            $updateStr->bind_param("iss", $registerId, $p, $valStr);
+                            if(!$updateStr->execute()) throw new Exception($mysqli->error);
                         }
-                    } else {
-                        echo "couldn't find the row with the highest key\n";
                     }
                 } else {
-                     echo "`couldn't find the highest key\n";
+                    echo "couldn't find the row with the highest key\n";
                 }
+            } else {
+                echo "`couldn't find the highest key\n";
             }
         }
 

@@ -171,7 +171,7 @@ if ($_POST != '') {
         }
 
 
-        $Timestamp   = date("y-m-d") ." " . date("H:i:s");
+        $Timestamp   = date("Y-m-d H:i:s");
         $TaskName    = $_POST['task_name'];
         $Title       = $_POST['title'];
         $Bug         = $_POST['bug'];
@@ -196,16 +196,20 @@ if ($_POST != '') {
         }
 
 
-        $updateStr = "INSERT INTO exception ( " .
-                   "TimestampCreated,TaskName,Title,Bug,Comments,Id,StackTrace,ClassName,OSName,OSVersion,JavaVersion," .
-                   "JavaVendor,UserName,IP,AppVersion,Collection,Discipline,Division,Institution) " .
+        $updateStr = $mysqli->prepare(
+            "INSERT INTO exception ( " .
+            "TimestampCreated,TaskName,Title,Bug,Comments,Id,StackTrace,ClassName,OSName,OSVersion,JavaVersion," .
+            "JavaVendor,UserName,IP,AppVersion,Collection,Discipline,Division,Institution) " .
+            "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
 
-                   "VALUES('$Timestamp', '$TaskName', '$Title', '$Bug', '$Comments', '$Id', '$StackTrace', '$ClassName', '$OSName', '$OSVersion', '$JavaVersion', " .
-                   "'$JavaVendor', '$UserName', '$IP', '$AppVersion', '$Collection', '$Discipline', '$Division', '$Institution') ";
+        $updateStr->bind_param(
+            "sssssssssssssssssss",
+            $Timestamp, $TaskName, $Title, $Bug, $Comments, $Id, $StackTrace, $ClassName, $OSName, $OSVersion,
+            $JavaVersion, $JavaVendor, $UserName, $IP, $AppVersion, $Collection, $Discipline, $Division, $Institution
+        );
 
-        echo "INSERT-> " . $updateStr . "\n";
-        $result = $mysqli->query($updateStr);
-
+        if(!$updateStr->execute()) throw new Exception($mysqli->error);
         $mysqli->close();
     }
     echo "ok";

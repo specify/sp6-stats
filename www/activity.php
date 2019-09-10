@@ -34,7 +34,7 @@
         }
 
         $now   = time();
-        $currentDateTime = "'20" . date("y-m-d") ." " . date("H:i:s") . "'";
+        $currentDateTime = date("Y-m-d H:i:s");
 
         $tr_id   = $_POST['id'];
         $type    = $_POST['Type'];
@@ -46,10 +46,12 @@
         $engagedMinutes = 0;
 
         // Now Insert or Update an activity record
-        $query = "SELECT TrackActivityID,LoginDate,LogoutDate,EngagedMinutes,UnknownCount FROM trackactivity WHERE Id = '" . $tr_id . "'";
+        $query = $mysqli->prepare("SELECT TrackActivityID,LoginDate,LogoutDate,EngagedMinutes,UnknownCount FROM trackactivity WHERE Id = ?");
+        $query->bind_param('s', $tr_id);
+        if(!$query->execute()) throw new Exception($mysqli->error);
+        $result = $query->get_result();
 
         $doInsert     = 1;
-        $result       = $mysqli->query($query);
         if ($result) {
             $row = $result->fetch_row();
             $result->close();
@@ -73,13 +75,13 @@
                         $unknownCount++;
                     }
                     $loginDTStr  = $currentDateTime;
-                    $logoutDTStr = "NULL";
+                    $logoutDTStr = null;
                     $engagedMinutes = 0;
 
                 } else // logging out
                 {
-                    $loginDTStr  = "NULL";
-                    $logoutDTStr = "NULL";
+                    $loginDTStr  = null;
+                    $logoutDTStr = null;
                     if ($loginDT == null) // Never logged in, strange?
                     {
                         $unknownCount++;
@@ -102,35 +104,27 @@
                     }
                 }
 
-                $updateStr = "UPDATE trackactivity SET LoginDate=" . $loginDTStr .
-                             ", LogoutDate=" . $logoutDTStr .
-                             ", EngagedMinutes=" . $engagedMinutes .
-                             ", UnknownCount=" . $unknownCount .
-                             " WHERE TrackActivityID = " . $trackId;
-                //echo "UPDATE-> [" . $updateStr . "]\n";
-                $result = $mysqli->query($updateStr);
+                $updateStr = $mysqli->prepare("UPDATE trackactivity SET LoginDate=?"  . // $loginDTStr .
+                                              ", LogoutDate=?" .                        // $logoutDTStr .
+                                              ", EngagedMinutes=?" .                    //$engagedMinutes .
+                                              ", UnknownCount=?" .                      //$unknownCount .
+                                              " WHERE TrackActivityID = ?");            // . $trackId;
 
+                $updateStr->bind_param('ssdii', $loginDTStr, $logoutDTStr, $engagedMinutes, $unknownCount, $trackId);
+                if(!$updateStr->execute()) throw new Exception($mysqli->error);
             }
         }
 
         if ($doInsert) {
-
-            $updateStr = "INSERT INTO trackactivity (LoginDate, LogoutDate, EngagedMinutes, ID, IP, InstReg, CollReg, Username, UnknownCount) VALUES(";
-            $updateStr .= $currentDateTime . ", NULL, 0, '$tr_id', '" . $remoteIPAddr . "', ";
-            $updateStr .= "'$instNum', '$colNum', '$usrname', 0)";
-
-            //echo "INSERT-> [" . $updateStr . "]\n";
-            $result = $mysqli->query($updateStr);
+            $updateStr = $mysqli->prepare("INSERT INTO trackactivity (LoginDate, LogoutDate, EngagedMinutes, ID, IP, InstReg, CollReg, Username, UnknownCount) VALUES( ?, NULL, 0, ?, ?, ?, ?, ?, 0)");
+            $updateStr->bind_param('ssssss',  $currentDateTime, $tr_id, $remoteIPAddr, $instNum, $colNum, $usrname);
+            if(!$updateStr->execute()) throw new Exception($mysqli->error);
         }
 
         // insert an activity entry record
-        $updateStr = "INSERT INTO trackactentry (ActivityDateTime, Type, EngagedMinutes, ID, IP, InstReg, CollReg, Username) VALUES(";
-        $updateStr .= $currentDateTime . ", $type, $engagedMinutes, '$tr_id', '" . $remoteIPAddr . "', ";
-        $updateStr .= "'$instNum', '$colNum', '$usrname')";
-        //echo "UPDATE TA-> [" . $updateStr . "]\n\n\n";
-        $result = $mysqli->query($updateStr);
-
-
+        $updateStr = $mysqli->prepare("INSERT INTO trackactentry (ActivityDateTime, Type, EngagedMinutes, ID, IP, InstReg, CollReg, Username) VALUES(?, ?, ?, ?, ?, ?, ?, ?)");
+        $updateStr->bind_param('ssisssss', $currentDateTime, $type, $engagedMinutes, $tr_id, $remoteIPAddr, $instNum, $colNum, $usrname);
+        if(!$updateStr->execute()) throw new Exception($mysqli->error);
         $mysqli->close();
     }
     echo "ok";

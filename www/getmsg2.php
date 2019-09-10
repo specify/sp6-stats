@@ -43,16 +43,20 @@ if ($_POST != '') {
             }
         }
 
-        $query = "SELECT Message FROM messages WHERE Type = 0 AND SingleUserIdent = '$Id'";
-        $result = $mysqli->query($query);
+        $query = $mysqli->prepare("SELECT Message FROM messages WHERE Type = 0 AND SingleUserIdent = ?");
+        $query->bind_param("s", $Id);
+        if(!$query->execute()) throw new Exception($mysqli->error);
+        $result = $query->get_result();
         if ($result)
         {
             $row = $result->fetch_row();
             $result->close();
             if ($row) {
                 $convInfoId = $row[0];
-                $query = "SELECT Message FROM messages WHERE MessagesID = $Id";
-                $result = $mysqli->query($query);
+                $query = $mysqli->print("SELECT Message FROM messages WHERE MessagesID = ?");
+                $query->bind_param("s", $Id);
+                if(!$query->execute()) throw new Exception($mysqli->error);
+                $result = $query->get_result();
                 if ($result)
                 {
                     $row = $result->fetch_row();

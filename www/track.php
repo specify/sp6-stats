@@ -323,12 +323,14 @@ function formatBytes($bytes, $precision = 2)
         }
 
         $tr_id = $_POST['id'];
-        $query = "SELECT TrackID, CountAmt FROM track WHERE Id = '" . $tr_id . "'";
+        $query = $mysqli->prepare("SELECT TrackID, CountAmt FROM track WHERE Id = ?");
+        $query->bind_param("s", $tr_id);
+        if(!$query->execute()) throw new Exception($mysqli->error);
 
         $rg_number    = "";
         $numStatsKeys = array();
         $doInsert     = 1;
-        $result       = $mysqli->query($query);
+        $result       = $query->get_result();
         if ($result) {
             $row = $result->fetch_row();
             $result->close();
@@ -336,9 +338,10 @@ function formatBytes($bytes, $precision = 2)
                 $doInsert = 0;
                 $trackId  = $row[0];
                 $count    = $row[1] + 1;
-		$timestampModified = "'20" . date("y-m-d") ." " . date("H:i:s") . "'";
-                $updateStr = "UPDATE track SET CountAmt=" . $count . ", TimestampModified=" . $timestampModified . " WHERE TrackID = " . $trackId;
-                $result = $mysqli->query($updateStr);
+                $timestampModified = date("Y-m-d H:i:s");
+                $updateStr = $mysqli->prepare("UPDATE track SET CountAmt=?, TimestampModified=? WHERE TrackID = ?");
+                $updateStr->bind_param("isi", $count, $timestampModified, $trackId);
+                $result = $updateStr->get_result();
 
                 foreach (array_keys($_POST) as $p) {
 
@@ -354,9 +357,10 @@ function formatBytes($bytes, $precision = 2)
 
                     $valStr       = $_POST[$p];
 
-                    $query = "SELECT TrackItemID FROM trackitem WHERE TrackID = ".$trackId." AND Name ='" . $p ."'";
-                    #echo "SEL: " . $query . "\n";
-                    $result = $mysqli->query($query);
+                    $query = $mysqli->prepare("SELECT TrackItemID FROM trackitem WHERE TrackID = ? AND Name = ?");
+                    $query->bind_param("is", $trackId, $p);
+                    if(!$query->execute()) throw new Exception($mysqli->error);
+                    $result = $query->get_result();
                     if ($result) {
                         $row = $result->fetch_row();
                         $result->close();
@@ -364,88 +368,92 @@ function formatBytes($bytes, $precision = 2)
                         {
                             $doItemInsert = 0;
                             $trackItemId  = $row[0];
-                            $updateStr    = "UPDATE trackitem SET ";
                             if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                             {
-                                $updateStr .= "CountAmt=" . $valStr . ", Value=NULL";
+                                $updateStr = $mysqli->prepare("UPDATE trackitem SET CountAmt=?, Value=NULL WHERE TrackItemID = ?");
+                                $updateStr->bind_param("ii", $valStr, $trackItemId);
+                                if(!$updateStr->execute()) throw new Exception($mysqli->error);
                             } else {
-                                $updateStr .= "Value='" . $valStr . "', CountAmt=NULL";
+                                $updateStr = $mysqli->prepare("UPDATE trackitem SET Value=?, CountAmt=NULL WHERE TrackItemID = ?");
+                                $updateStr->bind_param("si", $valStr, $trackItemId);
+                                if(!$updateStr->execute()) throw new Exception($mysqli->error);
                             }
-                            $updateStr .= " WHERE TrackItemID = " . $trackItemId;
                         }
                     }
 
                     if ($doItemInsert) {
-                        $updateStr = "INSERT INTO trackitem (TrackID, Name, Value, CountAmt) VALUES (" . $trackId . ", '" . $p . "', ";
                         if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                         {
-                            $updateStr .= "NULL, "  . $valStr . ")";
+                            $updateStr = $mysqli->prepare("INSERT INTO trackitem (TrackID, Name, Value, CountAmt) VALUES (?,?,NULL,?)");
+                            $updateStr->bind_param("isi", $trackId, $p, $valStr);
+                            if(!$updateStr->execute()) throw new Exception($mysqli->error);
                         } else {
-                            $updateStr .= "'" . $valStr . "', NULL)";
+                            $updateStr = $mysqli->prepare("INSERT INTO trackitem (TrackID, Name, Value, CountAmt) VALUES (?,?,?, NULL)");
+                            $updateStr->bind_param("iss", $trackId, $p, $valStr);
+                            if(!$updateStr->execute()) throw new Exception($mysqli->error);
                         }
                    }
-                   #echo "UP: " . $updateStr . "\n\n";
-                    $result = $mysqli->query($updateStr);
                 }
             }
         }
 
         if ($doInsert) {
 
-            $updateStr = "INSERT INTO track (Id, TimestampCreated, CountAmt, IP) VALUES('$tr_id', ";
-            $dateStr   = $_POST['date'];
+            $updateStr = $mysqli->prepare("INSERT INTO track (Id, TimestampCreated, CountAmt, IP) VALUES(?, ?, 1, ?)");
+            $updateStr->bind_param("sss", $tr_id, date("Y-m-d H:i:s"), $_SERVER['REMOTE_ADDR']);
+            if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
-            $updateStr .= "'20" . date("y-m-d") ." " . date("H:i:s") . "', 1, '" . $_SERVER['REMOTE_ADDR'] . "')";
-            #echo "INSERT-> " . $updateStr . "\n";
-            $result = $mysqli->query($updateStr);
-
+            $query = "SELECT TrackID FROM track ORDER BY TrackID DESC LIMIT 0,1";
+            $result2 = $mysqli->query($query);
             if ($result)
             {
-                $query = "SELECT TrackID FROM track ORDER BY TrackID DESC LIMIT 0,1";
-                $result2 = $mysqli->query($query);
-                if ($result)
-                {
-                    $row2 = $result2->fetch_row();
-                    $result2->close();
-                    if ($row2) {
-                        $trackId = $row2[0];
+                $row2 = $result2->fetch_row();
+                $result2->close();
+                if ($row2) {
+                    $trackId = $row2[0];
 
-                        foreach (array_keys($_POST) as $p) {
-                            $valStr = $_POST[$p];
+                    foreach (array_keys($_POST) as $p) {
+                        $valStr = $_POST[$p];
 
-                            if (substr($p, 0, 4) == "num_") {
-                               $numStatsKeys[] = $p;
-                            }
-
-                            if ($p == "Collection_number") {
-                                $rg_number = $_POST[$p];
-                            }
-
-                            $updateStr = "INSERT INTO trackitem (TrackID, Name, Value, CountAmt) VALUES (" . $trackId . ", '" . $p . "', ";
-                            if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
-                            {
-                                $updateStr .= "NULL, "  . $valStr . ")";
-                            } else {
-                                $updateStr .= "'" . $valStr . "', NULL)";
-                            }
-                            #echo "INSERT-> " . $updateStr . "\n";
-
-                            $result = $mysqli->query($updateStr);
+                        if (substr($p, 0, 4) == "num_") {
+                            $numStatsKeys[] = $p;
                         }
-                    } else {
-                        echo "couldn't find the row with the highest key\n";
+
+                        if ($p == "Collection_number") {
+                            $rg_number = $_POST[$p];
+                        }
+
+                        if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
+                        {
+                            $updateStr = $mysqli->prepare(
+                                "INSERT INTO trackitem (TrackID, Name, Value, CountAmt) VALUES (?, ?, NULL, ?)"
+                            );
+                            $updateStr->bind_param("isi", $trackId, $p, $valStr);
+                            if(!$updateStr->execute()) throw new Exception($mysqli->error);
+                        } else {
+                            $updateStr = $mysqli->prepare(
+                                "INSERT INTO trackitem (TrackID, Name, Value, CountAmt) VALUES (?, ?, ?, NULL)"
+                            );
+                            $updateStr->bind_param("iss", $trackId, $p, $valStr);
+                            if(!$updateStr->execute()) throw new Exception($mysqli->error);
+                        }
                     }
                 } else {
-                     echo "`couldn't find the highest key\n";
+                    echo "couldn't find the row with the highest key\n";
                 }
+            } else {
+                echo "`couldn't find the highest key\n";
             }
         }
-            #echo "Count " . count($numStatsKeys) . " RN: " . $rg_number . "\n";
 
             if (count($numStatsKeys) > 0) {
 
-                $query  = "SELECT RegisterID FROM register WHERE RegNumber = '" . $rg_number . "'";
-                $result = $mysql->query($query);
+                $query = $mysqli->prepare("SELECT RegisterID FROM register WHERE RegNumber = ?");
+                $query->bind_param("s", $rg_number);
+
+                if(!$query->execute()) throw new Exception($mysqli->error);
+                $result = $query->get_result();
+
                 if ($result) {
                     $row = $result->fetch_row();
                     $result->close();
@@ -459,9 +467,11 @@ function formatBytes($bytes, $precision = 2)
 
                             $doItemInsert = 1;
 
-                            $query = "SELECT RegisterItemID FROM registeritem WHERE RegisterID = ".$registerId." AND Name ='" . $p ."'";
-                            #echo "SEL: " . $query . "\n";
-                            $result = $mysqli->query($query);
+                            $query = $mysqli->prepare("SELECT RegisterItemID FROM registeritem WHERE RegisterID = ? AND Name = ?");
+                            $query->bind_param("is", $registerId, $p);
+                            if(!$query->execute()) throw new Exception($mysqli->error);
+
+                            $result = $query->get_result();
                             if ($result) {
                                 $row = $result->fetch_row();
                                 $result->close();
@@ -469,17 +479,19 @@ function formatBytes($bytes, $precision = 2)
                                 {
                                     $doItemInsert    = 0;
                                     $registerItemId  = $row[0];
-                                    $updateStr = "UPDATE registeritem SET CountAmt='" . $_POST[$p] . "' WHERE RegisterItemID = " . $registerItemId;
+                                    $updateStr = $mysqli->prepare("UPDATE registeritem SET CountAmt=? WHERE RegisterItemID = ?");
+                                    $updateStr->bind_param("si", $_POST[$p], $registerItemId);
+                                    if(!$updateStr->execute()) throw new Exception($mysqli->error);
                                 }
                             }
 
                             if ($doItemInsert) {
-
-                                $updateStr = "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (" . $registerId . ", '" . $p . "', ";
-                                $updateStr .= "NULL, "  . $_POST[$p] . ")";
+                                $updateStr = $mysqli->prepare(
+                                    "INSERT INTO registeritem (RegisterID, Name, Value, CountAmt) VALUES (?, ?, NULL, ?)"
+                                );
+                                $updateStr->bind_param("isi", $registerId, $p, $_POST[$p]);
+                                if(!$updateStr->execute()) throw new Exception($mysqli->error);
                            }
-                           #echo "UP: " . $updateStr . "\n\n";
-                            $result = $mysqli->query($updateStr);
                         }
                     }
                 }

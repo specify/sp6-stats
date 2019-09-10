@@ -101,7 +101,7 @@
             die("failed to connect to mysql" . $mysqli->connect_error);
         }
 
-        $Timestamp   = date("y-m-d") ." " . date("H:i:s");
+        $Timestamp   = date("Y-m-d H:i:s");
         $Subject     = $_POST['title'];
         $Issue       = $_POST['bug'];
         $Component   = $_POST['task_name'];
@@ -117,16 +117,18 @@
         $Division    = $_POST['division'];
         $Institution = $_POST['institution'];
 
-        $updateStr = "INSERT INTO feedback ( " .
-                     "TimestampCreated,Subject,Component,Issue,Comments,Id,OSName,OSVersion,JavaVersion," .
-                     "JavaVendor,AppVersion,Collection,Discipline,Division,Institution) " .
-
-         "VALUES('$Timestamp', '$Subject', '$Component', '$Issue', '$Comments', '$Id', '$OSName', '$OSVersion', '$JavaVersion', " .
-         "'$JavaVendor', '$AppVersion', '$Collection', '$Discipline', '$Division', '$Institution') ";
-
-        echo "INSERT-> " . $updateStr . "\n";
-        $result = $mysqli->query($updateStr);
-
+        $updateStr = $mysqli->prepare(
+            "INSERT INTO feedback ( " .
+            "TimestampCreated,Subject,Component,Issue,Comments,Id,OSName,OSVersion,JavaVersion," .
+            "JavaVendor,AppVersion,Collection,Discipline,Division,Institution) " .
+            "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
+        );
+        $updateStr->bind_param(
+            "sssssssssssssss",
+            $Timestamp, $Subject, $Component, $Issue, $Comments, $Id, $OSName, $OSVersion, $JavaVersion,
+            $JavaVendor, $AppVersion, $Collection, $Discipline, $Division, $Institution
+        );
+        if(!$updateStr->execute()) throw new Exception($mysqli->error);
         $mysqli->close();
     }
     echo "ok";
