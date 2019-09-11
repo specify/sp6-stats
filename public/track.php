@@ -398,9 +398,9 @@ function formatBytes($bytes, $precision = 2)
         }
 
         if ($doInsert) {
-
+            $dateStr = date("Y-m-d H:i:s");
             $updateStr = $mysqli->prepare("INSERT INTO track (Id, TimestampCreated, CountAmt, IP) VALUES(?, ?, 1, ?)");
-            $updateStr->bind_param("sss", $tr_id, date("Y-m-d H:i:s"), $_SERVER['REMOTE_ADDR']);
+            $updateStr->bind_param("sss", $tr_id, $dateStr, $_SERVER['REMOTE_ADDR']);
             if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
             $query = "SELECT TrackID FROM track ORDER BY TrackID DESC LIMIT 0,1";

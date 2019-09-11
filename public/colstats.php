@@ -123,10 +123,10 @@
 
         if ($doInsert) {
 
-            $dateStr   = $_POST['date']; //unused apparently
+            $dateStr = date("Y-m-d H:i:s");
 
             $updateStr = $mysqli->prepare("INSERT INTO colstats (Id, TimestampCreated, CountAmt, IP) VALUES(?, ?, 1, ?)");
-            $updateStr->bind_param("sss", $tr_id, date("Y-m-d H:i:s"), $_SERVER['REMOTE_ADDR']);
+            $updateStr->bind_param("sss", $tr_id, $dateStr, $_SERVER['REMOTE_ADDR']);
             if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
             if ($result)
@@ -135,7 +135,7 @@
                 $result2 = $mysqli->query($query);
                 if ($result2)
                 {
-                    $row2 = $result2->mysql_fetch_row();
+                    $row2 = $result2->fetch_row();
                     $result2->close();
                     if ($row2) {
                         $colstatsId = $row2[0];
@@ -161,13 +161,13 @@
 
                             } else if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                             {
-                                $updateStr = "INSERT INTO colstatsitem (ColStatsID, Name, Value, CountAmt, Stat) VALUES (" . $colstatsId . ", '" . $p . "', ";
-                                $updateStr .= "NULL, " . $valStr . ", NULL)";
+                                $updateStr = $mysqli->prepare("INSERT INTO colstatsitem (ColStatsID, Name, Value, CountAmt, Stat) VALUES (?, ?, NULL, ?, NULL)");
+                                $updateStr->bind_param("isi", $colstatsId, $p, $valStr);
                                 if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
                             } else {
-                                $updateStr = "INSERT INTO colstatsitem (ColStatsID, Name, Value, CountAmt, Stat) VALUES (" . $colstatsId . ", '" . $p . "', ";
-                                $updateStr .= "'" . $valStr . "', NULL, NULL)";
+                                $updateStr = $mysqli->prepare("INSERT INTO colstatsitem (ColStatsID, Name, Value, CountAmt, Stat) VALUES (?, ?, ?, NULL, NULL)");
+                                $updateStr->bind_param("iss", $colstatsId, $p, $valStr);
                                 if(!$updateStr->execute()) throw new Exception($mysqli->error);
                             }
                         }
@@ -201,7 +201,7 @@
                             $doItemInsert = 1;
 
                             $query = $mysqli->prepare("SELECT RegisterItemID FROM registeritem WHERE RegisterID = ? AND Name = ?");
-                            $query->prepare("is", $registerId, $p);
+                            $query->bind_param("is", $registerId, $p);
                             if(!$query->execute()) throw new Exception($mysqli->error);
                             $result = $query->get_result();
                             if ($result) {
