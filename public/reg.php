@@ -6,19 +6,6 @@
 $myFile = "/home/anhalt/reg.dat";
 
 
-  if (false && $_GET != '') {
-    if (isset($_GET["dmp"])) {
-        if ($_GET["dmp"] == 1) {
-            $fh = fopen($myFile, 'r') or die("Unable to open file.");
-
-            //Read the data for Registration into a string
-            $data_reg = fread($fh, filesize($myFile));
-            echo str_replace("\n", "<br>", $data_reg);//echo $data_reg,  "<br>";
-        }
-        return;
-    }
-  }
-
   if ($_POST != '') {
 
     $cnt = 0;
