@@ -1,6 +1,10 @@
 <?php
     include ("/etc/myauth.php");
 
+function encodeToUtf8($string) {
+    return mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1, ISO-8859-15", true));
+}
+
   if ($_POST != '') {
 
     $cnt = 0;
@@ -51,7 +55,7 @@
                 $result = $updateStr->get_result();
 
                 foreach (array_keys($_POST) as $p) {
-
+                    $valStr = encodeToUtf8($_POST[$p]);
                     $doItemInsert = 1;
                     $prefix       = substr($p, 0, 5);
                     $isStat       = $prefix == "catby" || $prefix == "audit";
@@ -77,7 +81,6 @@
                         {
                             $doItemInsert = 0;
                             $colstatsItemId  = $row[0];
-                            $valStr       = $_POST[$p];
 
                             if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                             {
@@ -141,7 +144,7 @@
                         $colstatsId = $row2[0];
 
                         foreach (array_keys($_POST) as $p) {
-                            $valStr = $_POST[$p];
+                            $valStr = encodeToUtf8($_POST[$p]);
                             $prefix       = substr($p, 0, 5);
                             $isStat       = $prefix == "catby" || $prefix == "audit";
                             //echo $p . " [" . $prefix . "]  isStat[" . $isStat . "]\n";

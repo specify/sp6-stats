@@ -4,6 +4,10 @@
     date_default_timezone_set('America/Chicago');
     $myFile = "/home/anhalt/track.dat";
 
+function encodeToUtf8($string) {
+    return mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1, ISO-8859-15", true));
+}
+
 
 function getArrCount ($arr, $depth=1)
 {
@@ -355,7 +359,7 @@ function formatBytes($bytes, $precision = 2)
                         $rg_number = $_POST[$p];
                     }
 
-                    $valStr       = $_POST[$p];
+                    $valStr = encodeToUtf8($_POST[$p]);
 
                     $query = $mysqli->prepare("SELECT TrackItemID FROM trackitem WHERE TrackID = ? AND Name = ?");
                     $query->bind_param("is", $trackId, $p);
@@ -413,7 +417,7 @@ function formatBytes($bytes, $precision = 2)
                     $trackId = $row2[0];
 
                     foreach (array_keys($_POST) as $p) {
-                        $valStr = $_POST[$p];
+                        $valStr = encodeToUtf8($_POST[$p]);
 
                         if (substr($p, 0, 4) == "num_") {
                             $numStatsKeys[] = $p;

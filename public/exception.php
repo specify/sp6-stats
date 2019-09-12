@@ -2,6 +2,10 @@
 include ("/etc/myauth.php");
 date_default_timezone_set('America/Chicago');
 
+function encodeToUtf8($string) {
+    return mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1, ISO-8859-15", true));
+}
+
 if (false && $_GET != '') {
     if (isset($_GET["dmp"])) {
         if ($_GET["dmp"] == 1) {
@@ -172,24 +176,24 @@ if ($_POST != '') {
 
 
         $Timestamp   = date("Y-m-d H:i:s");
-        $TaskName    = $_POST['task_name'];
-        $Title       = $_POST['title'];
-        $Bug         = $_POST['bug'];
-        $Comments    = $_POST['comments'];
-        $StackTrace  = $_POST['stack_trace'];
-        $ClassName   = $_POST['class_name'];
-        $Id          = $_POST['id'];
-        $OSName      = $_POST['os_name'];
-        $OSVersion   = $_POST['os_version'];
-        $JavaVersion = $_POST['java_version'];
-        $JavaVendor  = $_POST['java_vendor'];
-        $UserName    = $_POST['user_name'];
-        $IP          = $_POST['ip'];
-        $AppVersion  = $_POST['app_version'];
-        $Collection  = $_POST['collection'];
-        $Discipline  = $_POST['discipline'];
-        $Division    = $_POST['division'];
-        $Institution = $_POST['institution'];
+        $TaskName    = encodeToUtf8($_POST['task_name']);
+        $Title       = encodeToUtf8($_POST['title']);
+        $Bug         = encodeToUtf8($_POST['bug']);
+        $Comments    = encodeToUtf8($_POST['comments']);
+        $StackTrace  = encodeToUtf8($_POST['stack_trace']);
+        $ClassName   = encodeToUtf8($_POST['class_name']);
+        $Id          = encodeToUtf8($_POST['id']);
+        $OSName      = encodeToUtf8($_POST['os_name']);
+        $OSVersion   = encodeToUtf8($_POST['os_version']);
+        $JavaVersion = encodeToUtf8($_POST['java_version']);
+        $JavaVendor  = encodeToUtf8($_POST['java_vendor']);
+        $UserName    = encodeToUtf8($_POST['user_name']);
+        $IP          = encodeToUtf8($_POST['ip']);
+        $AppVersion  = encodeToUtf8($_POST['app_version']);
+        $Collection  = encodeToUtf8($_POST['collection']);
+        $Discipline  = encodeToUtf8($_POST['discipline']);
+        $Division    = encodeToUtf8($_POST['division']);
+        $Institution = encodeToUtf8($_POST['institution']);
 
         if (!isset($IP) || strlen($IP) == 0) {
             $IP = $_SERVER['REMOTE_ADDR'];
