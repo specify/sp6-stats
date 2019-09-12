@@ -2,6 +2,9 @@
     include ("/etc/myauth.php");
     date_default_timezone_set('America/Chicago');
     ini_set("memory_limit", "200M");
+function encodeToUtf8($string) {
+    return mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1, ISO-8859-15", true));
+}
 
 $myFile = "/home/anhalt/reg.dat";
 
@@ -79,7 +82,7 @@ $myFile = "/home/anhalt/reg.dat";
                         {
                             $doItemInsert = 0;
                             $regItemId    = $row[0];
-                            $valStr       = $_POST[$p];
+                            $valStr       = encodeToUtf8($_POST[$p]);
                             if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                             {
                                 $updateStr = $mysqli->prepare("UPDATE registeritem SET CountAmt=?, Value=NULL WHERE RegisterItemID = ?");
@@ -95,7 +98,7 @@ $myFile = "/home/anhalt/reg.dat";
                     }
 
                     if ($doItemInsert) {
-                        $valStr = $_POST[$p];
+                        $valStr = encodeToUtf8($_POST[$p]);
 
                         if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                         {
@@ -135,7 +138,7 @@ $myFile = "/home/anhalt/reg.dat";
                     $registerId = $row2[0];
 
                     foreach (array_keys($_POST) as $p) {
-                        $valStr = $_POST[$p];
+                        $valStr = encodeToUtf8($_POST[$p]);
 
                         if (strlen($valStr) && is_numeric($valStr) && !stripos($p, "_number", 0))
                         {

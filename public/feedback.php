@@ -1,5 +1,8 @@
 <?php
     include ("/etc/myauth.php");
+function encodeToUtf8($string) {
+    return mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1, ISO-8859-15", true));
+}
 
   if ($_POST != '') {
 
@@ -28,20 +31,20 @@
         }
 
         $Timestamp   = date("Y-m-d H:i:s");
-        $Subject     = $_POST['title'];
-        $Issue       = $_POST['bug'];
-        $Component   = $_POST['task_name'];
-        $Comments    = $_POST['comments'];
-        $Id          = $_POST['id'];
-        $OSName      = $_POST['os_name'];
-        $OSVersion   = $_POST['os_version'];
-        $JavaVersion = $_POST['java_version'];
-        $JavaVendor  = $_POST['java_vendor'];
-        $AppVersion  = $_POST['app_version'];
-        $Collection  = $_POST['collection'];
-        $Discipline  = $_POST['discipline'];
-        $Division    = $_POST['division'];
-        $Institution = $_POST['institution'];
+        $Subject     = encodeToUtf8($_POST['title']);
+        $Issue       = encodeToUtf8($_POST['bug']);
+        $Component   = encodeToUtf8($_POST['task_name']);
+        $Comments    = encodeToUtf8($_POST['comments']);
+        $Id          = encodeToUtf8($_POST['id']);
+        $OSName      = encodeToUtf8($_POST['os_name']);
+        $OSVersion   = encodeToUtf8($_POST['os_version']);
+        $JavaVersion = encodeToUtf8($_POST['java_version']);
+        $JavaVendor  = encodeToUtf8($_POST['java_vendor']);
+        $AppVersion  = encodeToUtf8($_POST['app_version']);
+        $Collection  = encodeToUtf8($_POST['collection']);
+        $Discipline  = encodeToUtf8($_POST['discipline']);
+        $Division    = encodeToUtf8($_POST['division']);
+        $Institution = encodeToUtf8($_POST['institution']);
 
         $updateStr = $mysqli->prepare(
             "INSERT INTO feedback ( " .
