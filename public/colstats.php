@@ -7,7 +7,7 @@ function encodeToUtf8($val) {
 }
 
   if ($_POST != '') {
-
+      $ipaddr = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
     $cnt = 0;
     foreach (array_keys($_POST) as $p) {
         $cnt++;
@@ -39,8 +39,8 @@ function encodeToUtf8($val) {
                 $colstatsId  = $row[0];
                 $count    = $row[1] + 1;
 		        $timestampModified = date("Y-m-d H:i:s");
-                $updateStr = $mysqli->prepare("UPDATE colstats SET CountAmt=?, TimestampModified=? WHERE ColStatsID = ?");
-                $updateStr->bind_param('isi', $count, $timestampModified, $colstatsId);
+                $updateStr = $mysqli->prepare("UPDATE colstats SET CountAmt=?, TimestampModified=?, IP=? WHERE ColStatsID = ?");
+                $updateStr->bind_param('issi', $count, $timestampModified, $ipaddr, $colstatsId);
                 if(!$updateStr->execute()) throw new Exception($mysqli->error);
                 $result = $updateStr->get_result();
 
@@ -119,7 +119,7 @@ function encodeToUtf8($val) {
             $dateStr = date("Y-m-d H:i:s");
 
             $updateStr = $mysqli->prepare("INSERT INTO colstats (Id, TimestampCreated, CountAmt, IP) VALUES(?, ?, 1, ?)");
-            $updateStr->bind_param("sss", $tr_id, $dateStr, $_SERVER['REMOTE_ADDR']);
+            $updateStr->bind_param("sss", $tr_id, $dateStr, $ipaddr);
             if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
             if ($result)

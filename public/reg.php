@@ -10,6 +10,7 @@ $myFile = "/home/anhalt/reg.dat";
 
 
   if ($_POST != '') {
+      $ipaddr = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
 
     $cnt = 0;
     foreach (array_keys($_POST) as $p) {
@@ -18,7 +19,7 @@ $myFile = "/home/anhalt/reg.dat";
 
     $dateTime =  "date=" . date("y/m/d") ." " . date("H:i:s") . "\n";
     $data = "---------------\n" . $dateTime;
-    $data = $data . "ip=" . $_SERVER['REMOTE_ADDR'] . "\n";
+    $data = $data . "ip=" . $ipaddr . "\n";
 
     $reg_number = "";
     $key = "reg_number";
@@ -125,7 +126,7 @@ $myFile = "/home/anhalt/reg.dat";
             $updateStr = $mysqli->prepare(
                 "INSERT INTO register (RegNumber, RegType, IP, TimestampCreated) VALUES(?, ?, ?, ?)"
             );
-            $updateStr->bind_param("ssss", $reg_number, $reg_type, $_SERVER['REMOTE_ADDR'], $dateStr);
+            $updateStr->bind_param("ssss", $reg_number, $reg_type, $ipaddr, $dateStr);
             if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
             $query = "SELECT RegisterID FROM register ORDER BY RegisterID DESC LIMIT 0,1";

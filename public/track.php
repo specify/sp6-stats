@@ -10,9 +10,8 @@ function encodeToUtf8($val) {
 }
 
 
-
   if ($_POST != '') {
-
+      $ipaddr = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
     $cnt = 0;
     foreach (array_keys($_POST) as $p) {
         $cnt++;
@@ -20,7 +19,7 @@ function encodeToUtf8($val) {
 
     $dateTime =  "date=" . date("y/m/d") ." " . date("H:i:s") . "\n";
     $data = "---------------\n" . $dateTime;
-    $data = $data . "ip=" . $_SERVER['REMOTE_ADDR'] . "\n";
+    $data = $data . "ip=" . $ipaddr . "\n";
     if ($cnt == 0) {
         echo "No arguments!<br>";
     } else {
@@ -58,9 +57,9 @@ function encodeToUtf8($val) {
                 $trackId  = $row[0];
                 $count    = $row[1] + 1;
                 $timestampModified = date("Y-m-d H:i:s");
-                $updateStr = $mysqli->prepare("UPDATE track SET CountAmt=?, TimestampModified=? WHERE TrackID = ?");
-                $updateStr->bind_param("isi", $count, $timestampModified, $trackId);
-                $result = $updateStr->get_result();
+                $updateStr = $mysqli->prepare("UPDATE track SET CountAmt=?, TimestampModified=?, IP=? WHERE TrackID = ?");
+                $updateStr->bind_param("issi", $count, $timestampModified, $ipaddr, $trackId);
+                if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
                 foreach (array_keys($_POST) as $p) {
 
@@ -119,7 +118,7 @@ function encodeToUtf8($val) {
         if ($doInsert) {
             $dateStr = date("Y-m-d H:i:s");
             $updateStr = $mysqli->prepare("INSERT INTO track (Id, TimestampCreated, CountAmt, IP) VALUES(?, ?, 1, ?)");
-            $updateStr->bind_param("sss", $tr_id, $dateStr, $_SERVER['REMOTE_ADDR']);
+            $updateStr->bind_param("sss", $tr_id, $dateStr, $ipaddr);
             if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
             $query = "SELECT TrackID FROM track ORDER BY TrackID DESC LIMIT 0,1";

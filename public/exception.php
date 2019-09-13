@@ -44,7 +44,7 @@ if ($_POST != '') {
         $Institution = encodeToUtf8($_POST['institution']);
 
         if (!isset($IP) || strlen($IP) == 0) {
-            $IP = $_SERVER['REMOTE_ADDR'];
+            $IP = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
         }
 
 

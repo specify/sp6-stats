@@ -11,7 +11,7 @@
 
     $remoteIPAddr = "1.1.1.1";
     */
-    $remoteIPAddr = $_SERVER['REMOTE_ADDR'];
+$remoteIPAddr = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
 
 
   if ($_POST != '') {
