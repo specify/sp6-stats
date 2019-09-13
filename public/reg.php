@@ -121,11 +121,11 @@ $myFile = "/home/anhalt/reg.dat";
         }
 
         if ($doInsert) {
-
+            $dateStr = date("Y-m-d H:i:s");
             $updateStr = $mysqli->prepare(
                 "INSERT INTO register (RegNumber, RegType, IP, TimestampCreated) VALUES(?, ?, ?, ?)"
             );
-            $updateStr->bind_param("ssss", $reg_number, $_SERVER['REMOTE_ADDR'], date("Y-m-d H:i:s"));
+            $updateStr->bind_param("ssss", $reg_number, $reg_type, $_SERVER['REMOTE_ADDR'], $dateStr);
             if(!$updateStr->execute()) throw new Exception($mysqli->error);
 
             $query = "SELECT RegisterID FROM register ORDER BY RegisterID DESC LIMIT 0,1";
