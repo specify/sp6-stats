@@ -4,7 +4,8 @@
     date_default_timezone_set('America/Chicago');
     $myFile = "/home/anhalt/track.dat";
 
-function encodeToUtf8($string) {
+function encodeToUtf8($val) {
+    $string = is_array($val) ? implode($val) : $val;
     return mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1, ISO-8859-15", true));
 }
 
