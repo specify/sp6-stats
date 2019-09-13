@@ -14,17 +14,6 @@ if ($_POST != '') {
         $cnt++;
     }
 
-    $dateTime =  "date=" . date("y/m/d") ." " . date("H:i:s") . "\n";
-    $data = "---------------\n" . $dateTime;
-    $data = $data . "ip=" . $_SERVER['REMOTE_ADDR'] . "\n";
-    if ($cnt == 0) {
-        echo "No arguments!<br>";
-    } else {
-        foreach (array_keys($_POST) as $p) {
-            $data = $data . "$p=$_POST[$p]\n";
-        }
-    }
-
     if ($cnt > 0)
     {
         $mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "exception");
