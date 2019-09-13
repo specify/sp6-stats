@@ -98,7 +98,7 @@ if ($_GET != '') {
             $result = $mysqli->query($sql);
 
             $printed_headers = 0;
-            while ( $row = $result->fetch_row() )
+            while ( $row = $result->fetch_assoc() )
             {
                 if (!$printed_headers) {
                     //print the headers once:
