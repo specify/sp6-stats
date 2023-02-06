@@ -1,0 +1,7 @@
+{
+  "devDependencies": {
+    "@maxxxxxdlp/prettier-config": "^1.0.4",
+    "prettier": "^2.8.3"
+  },
+  "prettier": "@maxxxxxdlp/prettier-config"
+}
