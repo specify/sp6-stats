@@ -1,47 +1,44 @@
-$( function () {
+$(function () {
+  const select_fields = $('select');
+  const result = $('#result');
+  const alert = $('#alert');
 
-	const select_fields = $( 'select' );
-	const result = $( '#result' );
-	const alert = $( '#alert' );
+  select_fields.on('change', function () {
+    alert.show();
 
-	select_fields.on( 'change', function () {
+    const select_field = $(this);
+    const category_name = select_field.attr('name');
+    const selected_field = select_field.find('option:selected').val();
 
-		alert.show();
+    if (selected_field === '') return true;
 
-		const select_field = $( this );
-		const category_name = select_field.attr( 'name' );
-		const selected_field = select_field.find( 'option:selected' ).val();
+    const x_http = new XMLHttpRequest();
+    x_http.onreadystatechange = function () {
+      if (this.readyState === 4 && this.status === 200) {
+        alert.hide();
 
-		if ( selected_field === '' )
-			return true;
+        result.html(x_http.responseText);
+      }
+    };
+    x_http.open(
+      'GET',
+      link +
+        'chart/?collection_number=' +
+        collection_number +
+        '&category_name=' +
+        category_name +
+        '&selected_field=' +
+        selected_field,
+      true
+    );
+    x_http.send();
 
-		const x_http = new XMLHttpRequest();
-		x_http.onreadystatechange = function () {
-			if ( this.readyState === 4 && this.status === 200 ) {
+    select_fields.each(function () {
+      const el = $(this);
 
-				alert.hide();
+      if (!el.is(select_field)) el.val('');
+    });
+  });
 
-
-				result.html( x_http.responseText );
-
-			}
-		};
-		x_http.open( 'GET', link + 'chart/?collection_number=' + collection_number +
-			'&category_name=' + category_name +
-			'&selected_field=' + selected_field, true );
-		x_http.send();
-
-		select_fields.each( function () {
-
-			const el = $( this );
-
-			if ( ! el.is( select_field ) )
-				el.val( '' );
-
-		} );
-
-	} );
-
-	$('select[name="database_stats"]').change();
-
-} );
+  $('select[name="database_stats"]').change();
+});
