@@ -89,7 +89,7 @@ if($ip != ''){ ?>
 		IP address: <a target="_blank" href="<?=LINK?>ip_info/?ip=<?=$ip?>"><?=$ip?></a>
 	</p>
 	<p id="org"></p>
-	<script src="<?=LINK?>static/js/track<?=JS_EXTENSION?>"></script><?php
+	<script src="<?=LINK?>static/js/track.js"></script><?php
 
 }
 

@@ -47,9 +47,6 @@ define('VERBOSE',FALSE);
 # Whether to output all PHP errors while DEVELOPMENT is set to FALSE
 define('SHOW_ERRORS_IN_PRODUCTION',TRUE);
 
-# Use non-minified files in production
-define('USE_NON_MINIFIED_FILES_IN_PRODUCTION',TRUE);
-
 
 
 ### FOR DEVELOPMENT ONLY ###

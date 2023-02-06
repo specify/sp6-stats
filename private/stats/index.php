@@ -268,6 +268,6 @@ unset($data); ?>
 	const initial_reports_count = '<?=$reports_count?>';
 
 </script>
-<script src="<?=LINK?>static/js/search<?=JS_EXTENSION?>"></script>
+<script src="<?=LINK?>static/js/search.js"></script>
 
 <?php footer();
