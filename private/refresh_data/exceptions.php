@@ -1,5 +1,8 @@
 <?php
 
+if(!isset($limit))
+  $limit = 30000;
+
 $query = "
 	SELECT * FROM `exception`
 	WHERE 
@@ -10,7 +13,7 @@ $query = "
 		`StackTrace` NOT LIKE 'edu.ku.brc.ui.forms.persist.FormCell%' AND
 		`StackTrace` NOT LIKE 'java.lang.RuntimeException: Two controls have the same id%'
 	ORDER BY `ExceptionID` DESC
-	LIMIT ".EXCEPTIONS_LIMIT;
+	LIMIT ".$limit;
 
 $columns = ['ExceptionID','TimestampCreated','TaskName','Title','Bug','Comments','stacktrace','ClassName','Id','OSName','OSVersion','JavaVersion','JavaVendor','UserName','IP','AppVersion','collection','discipline','division','institution','DoIgnore'];
 $empty_columns = $columns;

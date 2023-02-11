@@ -126,7 +126,7 @@ class Cache_query {
 
 		if(!$condensed)
 			echo '<a href="'.$base_url.'" class="btn btn-info">Home Page</a>
-				<a href="'.$base_url.$target_link.'?update_cache=true" class="btn btn-primary">Refresh Cache</a>
+				<a href="'.$base_url.$target_link.'/?update_cache=true" class="btn btn-primary">Refresh Cache</a>
 				<br>
 			</div>
 		</div>';

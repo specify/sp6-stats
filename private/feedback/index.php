@@ -16,7 +16,7 @@ require_once('../refresh_data/feedback.php');
 
 $number_of_results = count($data);
 
-$cache->get_status(LINK,'feedback/',$number_of_results); ?>
+$cache->get_status(LINK,'feedback',$number_of_results); ?>
 
 <table class="table table-striped mt-5 mb-5"> <?php
 

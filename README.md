@@ -46,6 +46,26 @@ The UI for displaying the usage stats.
    CREATE UNIQUE INDEX `track_index` on `track` (`trackid`,`ip`,`timestampcreated`); # Create indexes for `track`
    CREATE UNIQUE INDEX `trackitem_index` on `trackitem` (`trackid`,`name`,`value`,`countamt`); # Create indexes for `trackitem`
    ```
+   
+### Start up
+
+#### Production
+
+Start the containers: `docker compose up -d`
+
+#### Development
+
+Start the containers:
+
+```bash
+docker-compose \                                                                       2m 53s
+  -f docker-compose.yml \
+  -f docker-compose.development.yml \
+  up --build
+```
+
+In development, MariaDB database is accessible outside Docker and a
+`./source-data/` directory is mounted into the container.
 
 #### Optional settings
 

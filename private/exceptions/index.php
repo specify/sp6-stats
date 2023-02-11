@@ -5,6 +5,7 @@ const DATABASE = 'exception';
 require_once('../components/header.php');
 require_once('../config/cache.php');
 require_once('../components/Cache_query.php');
+$limit = $_GET['limit'];
 require_once('../refresh_data/exceptions.php');
 
 $total_number_of_occurrences = [];

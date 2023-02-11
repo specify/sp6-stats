@@ -1,11 +1,6 @@
 <?php
 
 
-##exceptions/index.php
-# The amount of exceptions to fetch
-define('EXCEPTIONS_LIMIT',300);
-
-
 ##chart/index.php
 # Specifies the way timestamps would be displayed
 define('TIMESTAMP_FORMATTER','Y F j D H:m:s');
