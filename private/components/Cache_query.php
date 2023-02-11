@@ -7,12 +7,12 @@
  *
  * CONFIGURATION
  * Static method `config` accepts the following configuration parameters:
- *     working_directory - the location where the cache file as well as the misc file would be saved. Example: /Users/mambo/site/stats/
+ *     working_directory - the location where the cache file as well as the misc file would be saved. Example: /Users/maxpatiiuk/site/stats/
  *     max_cache - Max cache age in seconds. If the cache file is older than this, the new SQL request would be run upon the next call to get_result(). Example: 86400*7 (7 days)
  *     default_column_separator - default separator between columns that are going to be used in the resulting CSV file. You should use a separator that does not occur in your dataset. Example: `%L&6
  *     default_line_separator   - default separator between lines that are going to be used in the resulting CSV file. You should use a separator that does not occur in your dataset. Example: 8#`/W
  *     misc_file_name - the name of the JSON file that would store the timestamps of when the cache was created. You can use the same file for multiple caches. Example: cache_info.json
- *     unix_time_formatter_function_name - the name of the function that would format the resulting UNIX dates. You can use the 'unix_time_to_human_time' function located here https://gist.github.com/maxxxxxdlp/54b7d6648a60a21a635f902de7a5d6b4
+ *     unix_time_formatter_function_name - the name of the function that would format the resulting UNIX dates. You can use the 'unix_time_to_human_time' function located here https://gist.github.com/maxpatiiuk/54b7d6648a60a21a635f902de7a5d6b4
  *
  *
  * USAGE

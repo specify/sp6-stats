@@ -22,7 +22,7 @@ define('CO_PREVIEW_MODE',1);
 
 ##refresh_data/index.php
 # An array of usernames that should be excluded from the query results when fetching stats
-define('USERNAMES_TO_EXCLUDE',['rods', 'tlammer', 'timo', 'mambo', 'm001p596', 'testuser', 'demouser', 'sp7demofish', 'testfish']);
+define('USERNAMES_TO_EXCLUDE',['rods', 'tlammer', 'timo', 'maxpatiiuk', 'm001p596', 'testuser', 'demouser', 'sp7demofish', 'testfish']);
 
 
 
