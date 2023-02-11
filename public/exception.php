@@ -1,5 +1,5 @@
 <?php
-include ("/etc/myauth.php");
+require_once("../config/required.php");
 date_default_timezone_set('America/Chicago');
 
 function encodeToUtf8($string) {
@@ -16,7 +16,7 @@ if ($_POST != '') {
 
 	if ($cnt > 0)
 	{
-		$mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "exception");
+		$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, "exception");
 
 		if ($mysqli->connect_errno) {
 			die("failed to connect to mysql" . $mysqli->connect_error);

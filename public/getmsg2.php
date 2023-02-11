@@ -1,5 +1,5 @@
 <?php
-include ("/etc/myauth.php");
+require_once("../config/required.php");
 
 if ($_POST != '') {
 
@@ -25,7 +25,7 @@ if ($_POST != '') {
 		#}
 		#if (1) return;
 
-		$mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "stats");
+		$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, "stats");
 
 		if ($mysqli->connect_errno) {
 			die("failed to connect to mysql" . $mysqli->connect_error);

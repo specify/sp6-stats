@@ -1,0 +1,8 @@
+version: '3.9'
+
+services:
+  mariadb:
+    ports:
+      - '3306:3306'
+    volumes:
+      - './source-data/:/source-data:ro'

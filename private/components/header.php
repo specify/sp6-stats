@@ -2,7 +2,7 @@
 
 
 require_once(dirname(__FILE__).'/functions.php');
-require_file('../config/required.php');
+require_file('../../config/required.php');
 require_file('../config/optional.php');
 
 

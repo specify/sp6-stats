@@ -1,5 +1,6 @@
 <?php
-include ("/etc/myauth.php");
+require_once("../config/required.php");
+
 function encodeToUtf8($string) {
 	return mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1, ISO-8859-15", true));
 }
@@ -14,7 +15,7 @@ if ($_POST != '') {
 
 	if ($cnt > 0)
 	{
-		$mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "feedback");
+		$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, "feedback");
 
 		if ($mysqli->connect_errno) {
 			die("failed to connect to mysql" . $mysqli->connect_error);

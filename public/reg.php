@@ -1,13 +1,12 @@
 <?php
-include ("/etc/myauth.php");
+require_once("../../config/required.php");
 date_default_timezone_set('America/Chicago');
 ini_set("memory_limit", "200M");
+
+
 function encodeToUtf8($string) {
 	return mb_convert_encoding($string, "UTF-8", mb_detect_encoding($string, "UTF-8, ISO-8859-1, ISO-8859-15", true));
 }
-
-$myFile = "/home/anhalt/reg.dat";
-
 
 if ($_POST != '') {
 	$ipaddr = array_key_exists('HTTP_X_FORWARDED_FOR', $_SERVER) ? $_SERVER['HTTP_X_FORWARDED_FOR'] : $_SERVER['REMOTE_ADDR'];
@@ -42,13 +41,13 @@ if ($_POST != '') {
 		}
 	}
 
-	$fh = fopen($myFile, 'a') or die("can't open file");
+	$fh = fopen(REG_DAT_LOCATION, 'a') or die("can't open file");
 	fwrite($fh, $data);
 	fclose($fh);
 
 	if ($cnt > 0)
 	{
-		$mysqli = new mysqli($mysql_hst, $mysql_usr, $mysql_pwd, "stats");
+		$mysqli = new mysqli(MYSQL_HOST, MYSQL_USER, MYSQL_PASSWORD, "stats");
 
 		if ($mysqli->connect_errno) {
 			die("failed to connect to mysql" . $mysqli->connect_error);

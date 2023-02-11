@@ -5,60 +5,47 @@ of [Specify 6](https://github.com/specify/specify6).
 
 ## Requirements
 
-1. PHP 7.2+ (older versions may work)
-2. [PHP mbstring](https://stackoverflow.com/a/37441536/8584605)
-3. Any Webserver
-4. MySQL 5.7+ or MariaDB 10.4+ (older versions may work)
-
 ## `Private`
 
-The `private` directory is responsible for displaying collected stats
+The UI for displaying the usage stats.
 
 ### Installation
 
-All of the configuration parameters you must change for the site to work are
-located in `./config/required.php`
+### Configuration
 
-Optional parameters are located in `./config/optional.php`
-and `./config/cache.php`
+1. Clone this repository
+2. Install Docker and Docker compose
+3. Copy `./env.example` file to `./.env` and change the variables as applicable
+4. Edit `docker-compose.yml` in all the places where you see `CHANGE THIS:`
+5. Copy `./sp7-stats/config/auth.example.conf` to
+   `./sp7-stats/config/auth.conf` and change the variables as applicable. That
+   would require you to create a GitHub OAuth
+   App. [See the instructions](https://github.com/specify/nginx-with-github-auth#installation)
+6. Generate `fullchain.pem` and `privkey.pem` (certificate
+   and the private key) using Let's Encrypt and put (or symlink) these files
+   into the `./sp7-stats/config/` directory.
 
-`./config/required.php` has several conditions present than define
-the `DEVELOPMENT` constant as well as the `ENVIRONMENT` constant.
-Those are used to change the error reporting level as well as determine the
-necessary values for other required constants.
-This is useful if you want the same code to work on multiple servers without any
-modifications.
+   While in development, you can generate self-signed certificates:
 
-1. Open the `./config/required.php` file.
-   Change the conditions present to make the server use necessary values for the
-   required constants depending on the server that is running the stats
-   reporting site.
-2. Set `LINK` to an address the website would be served on.
-3. Set `WORKING_LOCATION` to an empty folder.
-   This would be the destination for all cache files and other files created in
-   the process.
-   Make sure the webserver has **READ** and **WRITE** permissions to this
-   folder.
-4. If you want to see raw tracking stats, set `TRACK_DAT_LOCATION` to
-   your `track.dat` file.
-5. If you want to see raw registration stats, set `REG_DAT_LOCATION` to
-   your `reg.dat` file.
-6. You will need to configure a database connection. Refer to
-   the `Database connection` section below.
-7. Configure your webserver to point to the directory where this repository is
-   saved.
-8. It is recommended to set up daily cron to the following
+   ```sh
+   openssl req \
+      -x509 -sha256 -nodes -newkey rsa:2048 -days 365 \
+      -keyout ./sp7-stats/config/privkey.pem \
+      -out ./sp7-stats/config/fullchain.pem
+   ```
+
+7. It is recommended to set up daily cron to the following
    location `http://<yourdomain>/cron/refresh_data.php`. This will automatically
    unzip the files and compile the information so that users can get up to date
    data.
-9. It is also highly recommended to create indexes for `track` and `trackitem`
+8. It is also highly recommended to create indexes for `track` and `trackitem`
    tables in the `stats` database:
-    ```sql
-    SHOW INDEX FROM `track`; # Show existing indexes for `track`
-    SHOW INDEX FROM `trackitem`; # Show existing indexes for `trackitem`
-    CREATE UNIQUE INDEX `track_index` on `track` (`trackid`,`ip`,`timestampcreated`); # Create indexes for `track`
-    CREATE UNIQUE INDEX `trackitem_index` on `trackitem` (`trackid`,`name`,`value`,`countamt`); # Create indexes for `trackitem`
-    ```
+   ```sql
+   SHOW INDEX FROM `track`; # Show existing indexes for `track`
+   SHOW INDEX FROM `trackitem`; # Show existing indexes for `trackitem`
+   CREATE UNIQUE INDEX `track_index` on `track` (`trackid`,`ip`,`timestampcreated`); # Create indexes for `track`
+   CREATE UNIQUE INDEX `trackitem_index` on `trackitem` (`trackid`,`name`,`value`,`countamt`); # Create indexes for `trackitem`
+   ```
 
 #### Optional settings
 
@@ -73,20 +60,9 @@ days[![analytics](http://www.google-analytics.com/collect?v=1&t=pageview&dl=http
 
 ## `Public`
 
+The endpoint for collecting incoming stats from Specify 6
+
 The `public` directory is meant to be served at `specify6-prod.nhm.ku.edu`.
-
-## Database connection
-
-There are identical PHP files `public/components/mysql.php`
-and `private/components/mysql.php`.
-
-They get database credentials from a file located at `/etc/myauth.php`. If that
-file does not exist, `127.0.0.1` becomes a hostname and `root` becomes a login
-and a password. If the default values work for you, you don't have to change
-anything
-
-If you want to create `/etc/myauth.php`, make sure it sets the following
-variables: `$mysql_hst`, `$mysql_usr` and `$mysql_pwd`
 
 ## Credit for used resources
 

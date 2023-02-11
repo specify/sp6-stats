@@ -1,0 +1,58 @@
+version: '3.9'
+
+services:
+  mariadb:
+    image: mariadb:10
+    networks:
+      - database
+    restart: unless-stopped
+    environment:
+      - MYSQL_ROOT_PASSWORD=root
+    volumes:
+      - 'database:/var/lib/mysql'
+      - './config/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro'
+
+  nginx:
+    build: https://github.com/specify/nginx-with-github-auth.git#main
+    ports:
+      - '80:80'
+      - '443:443'
+    volumes:
+      - './config/auth.conf:/etc/nginx/auth.conf:ro'
+      - './config/nginx.conf:/etc/nginx/conf.d/default.conf:ro'
+      - './config/fullchain.pem:/etc/letsencrypt/live/sp6-stats/fullchain.pem:ro'
+      - './config/privkey.pem:/etc/letsencrypt/live/sp6-stats/privkey.pem:ro'
+      - './private/:/var/www/private/:ro'
+      - './public/:/var/www/public/:ro'
+      - './config/required.php:/var/www/config/required.php:ro'
+    networks:
+      - nginx
+    depends_on:
+      - php
+
+  php:
+    build:
+      context: ./
+      target: back_end
+    env_file:
+      ./.env
+    volumes:
+      # CHANGE THIS: Location of the track.dat file (raw tracking data)
+      - './source-data/track.dat:/home/specify/track.dat'
+      # CHANGE THIS: Location of the reg.dat file (raw registration stats)
+      - './source-data/reg.dat:/home/specify/reg.dat'
+      - './private/:/var/www/private/:ro'
+      - './public/:/var/www/public/:ro'
+      - './config/required.php:/var/www/config/required.php:ro'
+      - 'working-dir:/home/specify/working-dir/'
+    networks:
+      - nginx
+      - database
+
+networks:
+  nginx:
+  database:
+
+volumes:
+  database:
+  working-dir:
