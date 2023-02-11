@@ -3,7 +3,14 @@
 This website provides some information on the usage
 of [Specify 6](https://github.com/specify/specify6).
 
-## Requirements
+## Screenshots
+
+![Main page](./docs/src/main.png)
+![Feedback](./docs/src/feedback.png)
+![Exceptions](./docs/src/exceptions.png)
+![Usage Stats](./docs/src/usage.png)
+![Collection Object count for KU collection](./docs/src/co.png)
+![Query Edit count for KU collection](./docs/src/query-edit.png)
 
 ## `Private`
 
